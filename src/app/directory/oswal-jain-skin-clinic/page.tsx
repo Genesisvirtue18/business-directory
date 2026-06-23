@@ -21,6 +21,7 @@ import {
   Syringe,
   Users,
   Video,
+  ChevronRight
 } from "lucide-react";
 
 const breadcrumbs = ["Home", "Delhi", "Skin Clinic", "Oswal Jain Skin Clinic"];
@@ -152,20 +153,26 @@ function SectionCard({
   title,
   children,
   className = "",
+  noCard = false,
 }: {
   title: string;
   children: ReactNode;
   className?: string;
+  noCard?: boolean;
 }) {
   return (
     <section
-      className={[
-        "rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]",
-        className,
-      ].join(" ")}
+      className={
+        noCard
+          ? className
+          : [
+              "rounded-lg border border-slate-200 bg-white p-5 shadow-sm",
+              className,
+            ].join(" ")
+      }
     >
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-[17px] font-semibold text-slate-900">{title}</h2>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
       </div>
       {children}
     </section>
@@ -175,9 +182,10 @@ function SectionCard({
 export default function BusinessDetailPage() {
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
+      {/* ========== HEADER ========== */}
       <section className="bg-[#030818] text-white">
         <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
-          <header className="flex h-16 items-center justify-between rounded-[22px] border border-white/10 bg-white/10 px-4 backdrop-blur-xl lg:h-20 lg:px-6">
+          <header className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl lg:h-20 lg:flex-nowrap lg:px-6">
             <a href="/directory" className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-500 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
                 G
@@ -192,7 +200,7 @@ export default function BusinessDetailPage() {
               </div>
             </a>
 
-            <nav className="hidden items-center gap-7 xl:flex">
+            <nav className="hidden flex-wrap items-center gap-5 xl:flex">
               {["Home", "Businesses", "Categories", "Cities", "Deals", "Blog", "Contact Us"].map(
                 (item, index) => (
                   <a
@@ -209,27 +217,29 @@ export default function BusinessDetailPage() {
               )}
             </nav>
 
-            <div className="hidden items-center gap-3 lg:flex">
+            <div className="flex flex-wrap items-center gap-3 lg:flex-nowrap">
               <button
                 type="button"
                 className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:bg-white/10"
               >
                 <Plus className="h-4 w-4" />
-                Add Business
+                <span className="hidden sm:inline">Add Business</span>
               </button>
               <button
                 type="button"
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(99,102,241,0.35)] hover:bg-violet-700"
               >
                 <Users className="h-4 w-4" />
-                Login / Sign Up
+                <span className="hidden sm:inline">Login / Sign Up</span>
               </button>
             </div>
           </header>
         </div>
       </section>
 
+      {/* ========== MAIN CONTENT ========== */}
       <div className="mx-auto max-w-7xl px-4 py-5 lg:px-8">
+        {/* Breadcrumbs */}
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
           {breadcrumbs.map((crumb, index) => (
             <div key={crumb} className="flex items-center gap-2">
@@ -243,16 +253,20 @@ export default function BusinessDetailPage() {
           ))}
         </div>
 
+        {/* Grid: main + sidebar */}
         <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          {/* ===== LEFT COLUMN ===== */}
           <div className="space-y-6">
-            <section className="grid gap-6 rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:grid-cols-[1.05fr_1fr] lg:p-5">
+            {/* --- HERO CARD --- */}
+            <section className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
+              {/* Gallery */}
               <div>
-                <div className="relative overflow-hidden rounded-[24px]">
+                <div className="relative overflow-hidden rounded-[8px]">
                   <div className="absolute left-3 top-3 z-10 rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
                     Verified Business
                   </div>
 
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-slate-100">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[8px] bg-slate-100">
                     <Image
                       src={gallery[0]}
                       alt="Business interior"
@@ -283,7 +297,7 @@ export default function BusinessDetailPage() {
                   {gallery.map((src, index) => (
                     <div
                       key={index}
-                      className="relative aspect-[4/3] overflow-hidden rounded-[14px] bg-slate-100"
+                      className="relative aspect-[4/3] overflow-hidden rounded-[8px] bg-slate-100"
                     >
                       <Image
                         src={src}
@@ -302,6 +316,7 @@ export default function BusinessDetailPage() {
                 </div>
               </div>
 
+              {/* Info */}
               <div>
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
                   Oswal Jain Skin Clinic
@@ -331,36 +346,30 @@ export default function BusinessDetailPage() {
                   ))}
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-3">
                   {[
-                    { label: "Year Established", value: "2010", icon: CalendarDays },
-                    { label: "Team Size", value: "15+ Staff", icon: Users },
-                    { label: "Serving in", value: "Delhi, India", icon: MapPin },
+                    { label: "Established", value: "2010", icon: CalendarDays },
+                    { label: "Team", value: "15+ Staff", icon: Users },
+                    { label: "Location", value: "Delhi, India", icon: MapPin },
                   ].map(({ label, value, icon: Icon }) => (
-                    <div
-                      key={label}
-                      className="rounded-[18px] border border-slate-200 p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500">{label}</p>
-                          <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {value}
-                          </p>
-                        </div>
+                    <div key={label} className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                          {label}
+                        </p>
+                        <p className="text-sm font-medium text-slate-900">{value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-600">
-                  Oswal Jain Skin Clinic is a leading dermatology and skincare
-                  center in Delhi with advanced technology and experienced
-                  dermatologists dedicated to providing the best skin and hair
-                  care solutions.
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                  Oswal Jain Skin Clinic is a leading dermatology and skincare center in Delhi
+                  with advanced technology and experienced dermatologists dedicated to providing
+                  the best skin and hair care solutions.
                 </p>
 
                 <button
@@ -371,20 +380,20 @@ export default function BusinessDetailPage() {
                   <ChevronDown className="h-4 w-4" />
                 </button>
 
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700">
+                <div className="mt-4 flex flex-wrap items-center gap-3 overflow-x-auto">
+                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white">
                     <Phone className="h-4 w-4" />
-                    Call Now
+                    Call
                   </button>
-                  <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-violet-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-violet-50">
+                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
                     <Globe className="h-4 w-4" />
                     Website
                   </button>
-                  <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
                     <Share2 className="h-4 w-4" />
                     Share
                   </button>
-                  <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
                     <Heart className="h-4 w-4" />
                     Save
                   </button>
@@ -392,7 +401,8 @@ export default function BusinessDetailPage() {
               </div>
             </section>
 
-            <section className="rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            {/* --- TABS CARD --- */}
+            <section className="rounded-[8px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
               <div className="flex flex-wrap items-center gap-1 border-b border-slate-100 px-4 py-2">
                 {["Overview", "Services", "Reviews (320)", "Photos", "Deals", "Q&A"].map(
                   (tab, index) => (
@@ -418,10 +428,9 @@ export default function BusinessDetailPage() {
                     About Oswal Jain Skin Clinic
                   </h3>
                   <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-                    Oswal Jain Skin Clinic is one of Delhi&apos;s most trusted
-                    dermatology and skincare centers. We offer advanced
-                    treatments for skin, hair, laser, and cosmetology with
-                    world-class technology and experienced doctors.
+                    Oswal Jain Skin Clinic is one of Delhi&apos;s most trusted dermatology and
+                    skincare centers. We offer advanced treatments for skin, hair, laser, and
+                    cosmetology with world-class technology and experienced doctors.
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -437,7 +446,7 @@ export default function BusinessDetailPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[24px] bg-violet-50 p-6 text-center">
+                <div className="rounded-[8px] bg-violet-50 p-6 text-center">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-white text-violet-600 shadow-sm">
                     <BadgeCheck className="h-8 w-8" />
                   </div>
@@ -451,28 +460,26 @@ export default function BusinessDetailPage() {
               </div>
             </section>
 
+            {/* --- SERVICES --- */}
             <SectionCard title="Our Services">
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {services.map(({ title, text, icon: Icon }) => (
                   <div
                     key={title}
-                    className="rounded-[18px] border border-slate-200 p-4"
+                    className="rounded-lg border border-slate-200 p-4 text-center"
                   >
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-violet-50 text-violet-600">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-4 text-center text-sm font-semibold text-slate-900">
-                      {title}
-                    </h3>
-                    <p className="mt-2 text-center text-xs leading-6 text-slate-500">
-                      {text}
-                    </p>
+                    <h3 className="mt-4 text-sm font-semibold text-slate-900">{title}</h3>
+                    <p className="mt-2 text-xs leading-6 text-slate-500">{text}</p>
                   </div>
                 ))}
               </div>
             </SectionCard>
 
-            <div className="grid gap-6 lg:grid-cols-[1fr_1fr_0.9fr]">
+            {/* --- 3 COLUMN INFO CARDS --- */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <SectionCard title="Business Information">
                 <div className="space-y-4 text-sm text-slate-600">
                   <div className="flex items-start gap-3">
@@ -517,7 +524,7 @@ export default function BusinessDetailPage() {
               </SectionCard>
 
               <SectionCard title="Location">
-                <div className="rounded-[18px] overflow-hidden border border-slate-200 bg-slate-100">
+                <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-slate-100">
                   <div className="flex h-48 items-center justify-center bg-[linear-gradient(135deg,#e5e7eb_0%,#f8fafc_45%,#dbeafe_100%)] text-slate-400">
                     Map Preview
                   </div>
@@ -528,155 +535,105 @@ export default function BusinessDetailPage() {
                 </button>
               </SectionCard>
             </div>
-
-            <SectionCard title="What Our Patients Say">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {reviews.map((review) => (
-                  <div
-                    key={review.name}
-                    className="rounded-[18px] border border-slate-200 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
-                        {review.name.charAt(0)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900">
-                              {review.name}
-                            </p>
-                            <StarRow />
-                          </div>
-                          <span className="text-xs text-slate-400">{review.ago}</span>
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-slate-600">
-                          {review.text}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
-
-            <SectionCard title="You May Also Like">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                {related.map((item) => (
-                  <article
-                    key={item.name}
-                    className="overflow-hidden rounded-[18px] border border-slate-200 bg-white"
-                  >
-                    <div className="relative h-28 bg-gradient-to-br from-[#d9c4a8] via-[#f4eadc] to-[#d7e4ef]">
-                      <div className="absolute inset-0 flex items-end justify-start p-3">
-                        <div className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                          Verified
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-3">
-                      <h3 className="text-sm font-semibold text-slate-900">
-                        {item.name}
-                      </h3>
-                      <div className="mt-1 flex items-center gap-2 text-sm">
-                        <span className="font-semibold text-slate-900">
-                          {item.rating}
-                        </span>
-                        <span className="text-amber-400">★</span>
-                        <span className="text-xs text-slate-500">
-                          ({item.reviews})
-                        </span>
-                        <span className="ml-auto text-xs text-slate-500">
-                          {item.area}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-xs text-slate-500">Skin Clinic</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </SectionCard>
           </div>
 
-          <aside className="space-y-4">
-            <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-              <div className="rounded-[22px] bg-gradient-to-b from-violet-600 to-indigo-600 p-5 text-white">
-                <h2 className="text-[18px] font-semibold">Contact Business</h2>
-                <p className="mt-1 text-sm text-violet-100">
-                  Have questions? Get in touch!
-                </p>
-
-                <div className="mt-4 space-y-3">
-                  {["Your Name", "Your Phone", "Your Email", "Select Service", "Your Message"].map(
-                    (placeholder, index) => (
-                      <div
-                        key={placeholder}
-                        className={[
-                          "rounded-xl border border-white/15 bg-white px-4 py-3 text-sm text-slate-500",
-                          index === 4 ? "h-28" : "",
-                        ].join(" ")}
-                      >
-                        {placeholder}
-                      </div>
-                    ),
-                  )}
+          {/* ===== RIGHT SIDEBAR ===== */}
+          <aside className="space-y-8">
+            <section className="space-y-4">
+              {/* Contact Form */}
+              <div className="rounded-[8px] border border-slate-200 bg-white p-4">
+                <div className="mb-3">
+                  <h2 className="text-base font-semibold text-slate-900">
+                    Contact Business
+                  </h2>
+                  <p className="text-xs text-slate-500">Get a quick response</p>
                 </div>
 
-                <button className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-violet-700">
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
+                  />
+                  <select className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm text-slate-600 outline-none focus:border-violet-500">
+                    <option>Select Service</option>
+                    <option>Skin Treatment</option>
+                    <option>Hair Treatment</option>
+                    <option>Laser Treatment</option>
+                  </select>
+                  <textarea
+                    rows={3}
+                    placeholder="Your Message"
+                    className="w-full resize-none rounded-[8px] border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <button className="mt-3 h-10 w-full rounded-[8px] bg-violet-600 text-sm font-medium text-white hover:bg-violet-700">
                   Send Message
                 </button>
-
-                <p className="mt-3 text-center text-xs text-violet-100">
-                  We typically reply within a few minutes
+                <p className="mt-2 text-center text-[11px] text-slate-500">
+                  Response within 15 mins
                 </p>
               </div>
 
-              <div className="mt-4 space-y-3">
+              {/* Contact Options */}
+              <div className="space-y-3">
                 {[
-                  { icon: Phone, title: "+91 98765 43210", sub: "Tap to Call" },
-                  { icon: MessageSquare, title: "WhatsApp Us", sub: "Chat on WhatsApp" },
-                  { icon: Globe, title: "Email Us", sub: "info@oswaljainskin.com" },
+                  { icon: Phone, title: "+91 98765 43210", sub: "Call Business" },
+                  { icon: MessageSquare, title: "WhatsApp Support", sub: "Instant Chat" },
+                  { icon: Globe, title: "info@oswaljainskin.com", sub: "Send Email" },
                 ].map(({ icon: Icon, title, sub }) => (
                   <div
                     key={title}
-                    className="flex items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-4 py-3"
+                    className="flex items-center justify-between rounded-[8px] border border-slate-200 bg-white p-4 transition hover:border-violet-200 hover:shadow-sm"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
-                      <Icon className="h-5 w-5" />
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-violet-50 text-violet-600">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{title}</p>
+                        <p className="text-xs text-slate-500">{sub}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {title}
-                      </p>
-                      <p className="text-xs text-slate-500">{sub}</p>
-                    </div>
+                    <ChevronRight className="h-4 w-4 text-slate-400" />
                   </div>
                 ))}
               </div>
             </section>
 
-            <section className="rounded-[24px] border border-slate-200 bg-gradient-to-br from-[#f2ecff] to-[#faf7ff] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            {/* Ad */}
+            <section className="rounded-lg border border-slate-200 bg-gradient-to-br from-[#f2ecff] to-[#faf7ff] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[18px] font-semibold text-slate-900">
                     Want More Customers?
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Advertise your business and reach thousands of potential
-                    customers.
+                    Advertise your business and reach thousands of potential customers.
                   </p>
                 </div>
                 <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-violet-600">
                   Ad
                 </span>
               </div>
-
               <button className="mt-5 inline-flex h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white hover:bg-violet-700">
                 Advertise Now
               </button>
             </section>
 
-            <section className="space-y-3 rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            {/* Stats */}
+            <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
               {[
                 { value: "320+", label: "Total Reviews", icon: Star },
                 { value: "10,000+", label: "Happy Patients", icon: Users },
@@ -685,9 +642,9 @@ export default function BusinessDetailPage() {
               ].map(({ value, label, icon: Icon }) => (
                 <div
                   key={label}
-                  className="flex items-center gap-3 rounded-[18px] border border-slate-200 px-4 py-3"
+                  className="flex items-center gap-3 rounded-lg border border-slate-200 px-4 py-3"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -698,6 +655,77 @@ export default function BusinessDetailPage() {
               ))}
             </section>
           </aside>
+        </div>
+
+        {/* ===== BOTTOM SECTIONS ===== */}
+        <div className="mt-6 space-y-6">
+          {/* Reviews */}
+          <SectionCard title="What Our Patients Say" noCard>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {reviews.map((review) => (
+                <div
+                  key={review.name}
+                  className="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-5"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 text-base font-semibold text-slate-700">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-base font-semibold text-slate-900">
+                            {review.name}
+                          </h3>
+                          <StarRow />
+                        </div>
+                        <span className="whitespace-nowrap text-xs text-slate-400">
+                          {review.ago}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-4 flex-1 text-sm leading-7 text-slate-600">
+                    {review.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          {/* Related */}
+          <SectionCard title="You May Also Like" noCard>
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              {related.map((item) => (
+                <article
+                  key={item.name}
+                  className="group overflow-hidden rounded-lg border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="relative h-28 overflow-hidden bg-gradient-to-br from-violet-100 via-fuchsia-50 to-indigo-100">
+                    <div className="absolute left-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                      Verified
+                    </div>
+                    <div className="absolute right-2 top-2 rounded-md bg-white px-2 py-1 text-xs font-semibold shadow-sm">
+                      ⭐ {item.rating}
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">
+                      {item.name}
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">Skin Clinic</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-xs text-slate-500">{item.reviews} Reviews</span>
+                      <span className="text-xs font-medium text-violet-600">{item.area}</span>
+                    </div>
+                    <button className="mt-3 h-9 w-full rounded-lg bg-violet-600 text-xs font-medium text-white transition hover:bg-violet-700">
+                      View Details
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </SectionCard>
         </div>
       </div>
     </main>

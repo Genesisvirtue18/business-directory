@@ -104,7 +104,6 @@ const sponsoredBusinesses = [
     badge: "Ad",
     swatch: "from-[#f4e7cf] via-[#fff9ef] to-[#dfbb86]",
   },
-  
 ];
 
 const businesses = [
@@ -231,37 +230,34 @@ function BusinessCard({
   return (
     <article
       className={[
-        "overflow-hidden rounded-[24px] border bg-white shadow-[0_8px_26px_rgba(15,23,42,0.06)]",
-        sponsored ? "border-violet-200 p-4" : "border-slate-100 p-0",
+        "group overflow-hidden rounded-lg border bg-white transition-all duration-300 hover:shadow-xl",
+        sponsored
+          ? "border-violet-200 p-4 hover:border-violet-300"
+          : "border-slate-100 p-0 hover:border-violet-200 hover:shadow-[0_20px_50px_rgba(99,102,241,0.12)]",
       ].join(" ")}
     >
       <div
         className={[
           "relative overflow-hidden",
-          sponsored ? "h-48 rounded-[18px]" : "h-44 rounded-[20px] m-4 mb-0",
+          sponsored ? "h-48 rounded-lg" : "h-44 rounded-lg m-4 mb-0",
         ].join(" ")}
       >
-        <div
-          className={[
-            "absolute inset-0 bg-gradient-to-br",
-            business.swatch,
-          ].join(" ")}
-        />
+        <div className={["absolute inset-0 bg-gradient-to-br", business.swatch].join(" ")} />
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.6),transparent_24%),radial-gradient(circle_at_84%_16%,rgba(255,255,255,0.3),transparent_20%),linear-gradient(to_top,rgba(15,23,42,0.18),transparent_70%)]" />
 
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/70 bg-white/90 text-xl font-semibold text-slate-700 shadow-[0_16px_38px_rgba(15,23,42,0.16)]">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/70 bg-white/90 text-xl font-semibold text-slate-700 shadow-[0_16px_38px_rgba(15,23,42,0.16)] transition-transform group-hover:scale-105">
             {business.short}
           </div>
         </div>
 
         <div className="absolute left-3 top-3 flex items-center gap-2">
-          <span className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+          <span className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur-sm">
             {business.badge}
           </span>
           {sponsored ? null : (
-            <span className="rounded-full bg-violet-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+            <span className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
               Featured
             </span>
           )}
@@ -270,21 +266,19 @@ function BusinessCard({
         <button
           type="button"
           aria-label="Save business"
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm transition-colors hover:bg-white hover:text-violet-600"
         >
           <Heart className="h-4 w-4" />
         </button>
       </div>
 
       <div className={sponsored ? "px-1 pt-4" : "p-4 pt-4"}>
-        <h3 className="truncate text-[15px] font-semibold text-slate-900">
+        <h3 className="truncate text-[15px] font-semibold text-slate-900 group-hover:text-violet-700">
           {business.name}
         </h3>
 
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-semibold text-amber-500">
-            {business.rating}
-          </span>
+          <span className="text-sm font-semibold text-amber-500">{business.rating}</span>
           <Stars />
           <span className="text-xs text-slate-500">({business.reviews})</span>
         </div>
@@ -301,9 +295,7 @@ function BusinessCard({
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-          <span className="font-semibold text-emerald-600">
-            {business.status}
-          </span>
+          <span className="font-semibold text-emerald-600">{business.status}</span>
           {"closesAt" in business ? (
             <span className="text-slate-500">{business.closesAt}</span>
           ) : null}
@@ -312,7 +304,7 @@ function BusinessCard({
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-violet-600 hover:border-violet-200 hover:bg-violet-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-violet-600 transition-colors hover:border-violet-200 hover:bg-violet-50"
           >
             <Phone className="h-4 w-4" />
             Call
@@ -320,7 +312,7 @@ function BusinessCard({
 
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-violet-600 text-sm font-semibold text-white shadow-sm shadow-violet-300 hover:bg-violet-700"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-sm font-semibold text-white shadow-sm shadow-violet-300 transition-all hover:scale-[1.02] hover:shadow-violet-400"
           >
             View Profile
           </button>
@@ -333,6 +325,7 @@ function BusinessCard({
 export default function DirectoryPage() {
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
+      {/* ========== HERO ========== */}
       <section className="relative isolate overflow-hidden bg-[#030818] text-white">
         <Image
           src="/images/hero-bg.png"
@@ -346,12 +339,12 @@ export default function DirectoryPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_22%,rgba(104,92,255,0.18),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(255,157,91,0.16),transparent_24%),radial-gradient(circle_at_70%_85%,rgba(121,78,255,0.12),transparent_28%)]" />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-5 lg:px-8 lg:pb-16 lg:pt-6">
-          <header className="flex h-16 items-center justify-between rounded-[22px] border border-white/10 bg-white/10 px-4 backdrop-blur-xl lg:h-20 lg:px-6">
+          {/* Header */}
+          <header className="flex h-16 items-center justify-between rounded-lg border border-white/10 bg-white/10 px-4 backdrop-blur-xl lg:h-20 lg:px-6">
             <a href="#" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-500 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
                 G
               </div>
-
               <div className="leading-tight">
                 <h1 className="text-[17px] font-semibold text-white lg:text-xl">
                   Genesis Virtue
@@ -380,15 +373,14 @@ export default function DirectoryPage() {
             <div className="hidden items-center gap-3 lg:flex">
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:bg-white/10"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 <Plus className="h-4 w-4" />
                 Add Business
               </button>
-
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(99,102,241,0.35)] hover:bg-violet-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(99,102,241,0.35)] transition hover:shadow-[0_10px_40px_rgba(99,102,241,0.5)]"
               >
                 <Users className="h-4 w-4" />
                 Login / Sign Up
@@ -398,12 +390,13 @@ export default function DirectoryPage() {
             <button
               type="button"
               aria-label="Open menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white xl:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white xl:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
           </header>
 
+          {/* Hero Content */}
           <div className="grid gap-10 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:pt-16">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 backdrop-blur">
@@ -415,17 +408,18 @@ export default function DirectoryPage() {
                 Find Trusted
                 <br />
                 Businesses{" "}
-                <span className="text-violet-400">Near You</span>
+                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+                  Near You
+                </span>
               </h2>
 
               <p className="mt-5 max-w-lg text-base leading-7 text-slate-200 sm:text-lg">
-                Discover, connect and grow with the best local businesses across
-                India.
+                Discover, connect and grow with the best local businesses across India.
               </p>
 
-              <div className="mt-8 overflow-hidden rounded-[28px] border border-white/12 bg-white/96 p-2 text-slate-900 shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+              <div className="mt-8 overflow-hidden rounded-lg border border-white/12 bg-white/96 p-2 text-slate-900 shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur">
                 <div className="grid gap-2 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_160px]">
-                  <label className="flex h-16 items-center gap-3 rounded-[22px] px-4">
+                  <label className="flex h-16 items-center gap-3 rounded-lg px-4 hover:bg-slate-50/50">
                     <Search className="h-5 w-5 text-slate-400" />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="text-[11px] font-medium text-slate-400">
@@ -437,7 +431,7 @@ export default function DirectoryPage() {
                     </span>
                   </label>
 
-                  <label className="flex h-16 items-center gap-3 rounded-[22px] border-t border-slate-100 px-4 md:border-l md:border-t-0">
+                  <label className="flex h-16 items-center gap-3 rounded-lg border-t border-slate-100 px-4 md:border-l md:border-t-0 hover:bg-slate-50/50">
                     <MapPin className="h-5 w-5 text-slate-400" />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="text-[11px] font-medium text-slate-400">
@@ -451,7 +445,7 @@ export default function DirectoryPage() {
 
                   <button
                     type="button"
-                    className="inline-flex h-14 items-center justify-center rounded-[18px] bg-gradient-to-r from-violet-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(99,102,241,0.32)] hover:brightness-105"
+                    className="inline-flex h-14 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(99,102,241,0.32)] transition hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(99,102,241,0.4)]"
                   >
                     Search Now
                   </button>
@@ -459,15 +453,12 @@ export default function DirectoryPage() {
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-                <span className="font-semibold text-slate-200">
-                  Popular Searches:
-                </span>
-
+                <span className="font-semibold text-slate-200">Popular Searches:</span>
                 {popularSearches.map((item) => (
                   <a
                     key={item}
                     href="#"
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-slate-100 backdrop-blur hover:border-violet-300/50 hover:bg-white/10"
+                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-slate-100 backdrop-blur transition hover:border-violet-300/50 hover:bg-white/10"
                   >
                     {item}
                   </a>
@@ -475,19 +466,17 @@ export default function DirectoryPage() {
               </div>
             </div>
 
+            {/* Hero Stats Card */}
             <div className="hidden items-end justify-end lg:flex">
-              <div className="w-full max-w-[360px] rounded-[28px] border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
+              <div className="w-full max-w-[360px] rounded-lg border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.22em] text-slate-300">
                       Live Coverage
                     </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
-                      Delhi NCR
-                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-white">Delhi NCR</p>
                   </div>
-
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10">
                     <Building2 className="h-6 w-6 text-violet-200" />
                   </div>
                 </div>
@@ -501,13 +490,11 @@ export default function DirectoryPage() {
                   ].map(({ label, value, icon: Icon }) => (
                     <div
                       key={label}
-                      className="rounded-2xl border border-white/10 bg-black/15 p-4"
+                      className="rounded-lg border border-white/10 bg-black/15 p-4 transition hover:bg-black/25"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-2xl font-semibold text-white">
-                            {value}
-                          </p>
+                          <p className="text-2xl font-semibold text-white">{value}</p>
                           <p className="mt-1 text-xs text-slate-300">{label}</p>
                         </div>
                         <Icon className="h-5 w-5 text-violet-300" />
@@ -521,17 +508,17 @@ export default function DirectoryPage() {
         </div>
       </section>
 
+      {/* ========== DIRECTORY ========== */}
       <section className="bg-[#f5f7fc]">
         <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
           <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <aside className="rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+            {/* Filters */}
+            <aside className="rounded-lg border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
               <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <h3 className="text-[15px] font-semibold text-slate-900">
-                  Filters
-                </h3>
+                <h3 className="text-[15px] font-semibold text-slate-900">Filters</h3>
                 <button
                   type="button"
-                  className="text-xs font-semibold text-violet-600 hover:text-violet-700"
+                  className="text-xs font-semibold text-violet-600 transition hover:text-violet-700"
                 >
                   Reset All
                 </button>
@@ -545,9 +532,9 @@ export default function DirectoryPage() {
                       <label
                         key={label}
                         className={[
-                          "flex cursor-pointer items-center justify-between rounded-2xl border px-3 py-2.5 text-sm transition",
+                          "flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 text-sm transition-all",
                           active
-                            ? "border-violet-200 bg-violet-50 text-violet-700"
+                            ? "border-violet-300 bg-violet-50 text-violet-700 shadow-sm"
                             : "border-transparent bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-white",
                         ].join(" ")}
                       >
@@ -555,9 +542,7 @@ export default function DirectoryPage() {
                           <Icon className="h-4 w-4" />
                           <span>{label}</span>
                         </span>
-                        <span className="text-xs font-medium text-slate-400">
-                          {count}
-                        </span>
+                        <span className="text-xs font-medium text-slate-400">{count}</span>
                       </label>
                     ))}
                   </div>
@@ -565,7 +550,7 @@ export default function DirectoryPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Location</p>
-                  <div className="mt-3 rounded-2xl border border-slate-200 px-3 py-2.5">
+                  <div className="mt-3 rounded-lg border border-slate-200 px-3 py-2.5">
                     <div className="flex items-center gap-2 text-slate-400">
                       <Search className="h-4 w-4" />
                       <input
@@ -575,13 +560,12 @@ export default function DirectoryPage() {
                       />
                     </div>
                   </div>
-
                   <div className="mt-3 space-y-2">
                     {locations.map(({ label, count, active }) => (
                       <label
                         key={label}
                         className={[
-                          "flex cursor-pointer items-center justify-between rounded-2xl px-2 py-1.5 text-sm",
+                          "flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-sm transition",
                           active
                             ? "bg-violet-50 text-violet-700"
                             : "text-slate-600 hover:bg-slate-50",
@@ -595,9 +579,7 @@ export default function DirectoryPage() {
                           />
                           <span>{label}</span>
                         </span>
-                        <span className="text-xs font-medium text-slate-400">
-                          {count}
-                        </span>
+                        <span className="text-xs font-medium text-slate-400">{count}</span>
                       </label>
                     ))}
                   </div>
@@ -609,7 +591,7 @@ export default function DirectoryPage() {
                     {ratings.map((item) => (
                       <label
                         key={item.label}
-                        className="flex cursor-pointer items-center justify-between rounded-2xl px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+                        className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
                       >
                         <span className="inline-flex items-center gap-2">
                           <input
@@ -631,7 +613,7 @@ export default function DirectoryPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Open Now</p>
-                  <label className="mt-3 flex items-center gap-2 rounded-2xl px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <label className="mt-3 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50">
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
@@ -641,10 +623,8 @@ export default function DirectoryPage() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    Verified Businesses
-                  </p>
-                  <label className="mt-3 flex items-center gap-2 rounded-2xl px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <p className="text-sm font-semibold text-slate-900">Verified Businesses</p>
+                  <label className="mt-3 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50">
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
@@ -655,17 +635,19 @@ export default function DirectoryPage() {
               </div>
             </aside>
 
+            {/* Results */}
             <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:px-5">
+              {/* Results Header */}
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:px-5">
                 <div>
                   <h3 className="text-[18px] font-semibold text-slate-900">
                     Showing results for{" "}
-                    <span className="text-violet-600">Skin Clinic</span> in
-                    Delhi, India
+                    <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                      Skin Clinic
+                    </span>{" "}
+                    in Delhi, India
                   </h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    156 businesses found
-                  </p>
+                  <p className="mt-1 text-sm text-slate-500">156 businesses found</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -673,24 +655,24 @@ export default function DirectoryPage() {
                     <span>Sort by:</span>
                     <button
                       type="button"
-                      className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700"
+                      className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
                     >
                       Most Relevant
                       <ChevronDown className="h-4 w-4" />
                     </button>
                   </div>
 
-                  <div className="flex items-center overflow-hidden rounded-xl border border-slate-200">
+                  <div className="flex items-center overflow-hidden rounded-lg border border-slate-200">
                     <button
                       type="button"
-                      className="inline-flex h-10 w-10 items-center justify-center bg-violet-50 text-violet-600"
+                      className="inline-flex h-10 w-10 items-center justify-center bg-violet-50 text-violet-600 transition hover:bg-violet-100"
                       aria-label="Grid view"
                     >
                       <Grid2X2 className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
-                      className="inline-flex h-10 w-10 items-center justify-center bg-white text-slate-500"
+                      className="inline-flex h-10 w-10 items-center justify-center bg-white text-slate-500 transition hover:bg-slate-50"
                       aria-label="List view"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
@@ -699,7 +681,7 @@ export default function DirectoryPage() {
 
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
+                    className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
                   >
                     <MapPin className="h-4 w-4 text-violet-600" />
                     View on Map
@@ -707,34 +689,32 @@ export default function DirectoryPage() {
                 </div>
               </div>
 
-              <section className="rounded-[24px] border border-violet-200 bg-[#f8f5ff] p-4 shadow-[0_10px_30px_rgba(99,102,241,0.06)]">
+              {/* Sponsored */}
+              <section className="rounded-lg border border-violet-200 bg-gradient-to-br from-[#f8f5ff] to-[#faf7ff] p-4 shadow-[0_10px_30px_rgba(99,102,241,0.06)]">
                 <div className="mb-4 flex items-center gap-2 text-[15px] font-semibold text-violet-700">
                   <Sparkles className="h-4 w-4" />
                   Sponsored Businesses
                 </div>
-
                 <div className="grid gap-4 xl:grid-cols-3">
                   {sponsoredBusinesses.map((business) => (
-                    <BusinessCard
-                      key={business.name}
-                      business={business}
-                      sponsored
-                    />
+                    <BusinessCard key={business.name} business={business} sponsored />
                   ))}
                 </div>
               </section>
 
+              {/* Business Grid */}
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {businesses.map((business) => (
                   <BusinessCard key={business.name} business={business} />
                 ))}
               </div>
 
-              <div className="flex flex-col items-center justify-between gap-4 rounded-[24px] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:flex-row">
+              {/* Pagination */}
+              <div className="flex flex-col items-center justify-between gap-4 rounded-lg bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:flex-row">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-violet-200 hover:bg-violet-50"
                     aria-label="Previous page"
                   >
                     <ArrowLeft className="h-4 w-4" />
@@ -745,10 +725,10 @@ export default function DirectoryPage() {
                       key={item}
                       type="button"
                       className={[
-                        "flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-semibold",
+                        "flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition",
                         index === 0
-                          ? "border-violet-600 bg-violet-600 text-white"
-                          : "border-slate-200 bg-white text-slate-700",
+                          ? "border-violet-600 bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-300"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-violet-200 hover:bg-violet-50",
                       ].join(" ")}
                     >
                       {item}
@@ -759,14 +739,14 @@ export default function DirectoryPage() {
 
                   <button
                     type="button"
-                    className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700"
+                    className="flex h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
                   >
                     13
                   </button>
 
                   <button
                     type="button"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-violet-200 hover:bg-violet-50"
                     aria-label="Next page"
                   >
                     <ArrowRight className="h-4 w-4" />
@@ -777,7 +757,7 @@ export default function DirectoryPage() {
                   <span>Show:</span>
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 font-medium text-slate-700"
+                    className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
                   >
                     12 per page
                     <ChevronDown className="h-4 w-4" />
@@ -785,20 +765,19 @@ export default function DirectoryPage() {
                 </div>
               </div>
 
+              {/* Stats */}
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {stats.map(({ value, label, icon: Icon }) => (
                   <div
                     key={label}
-                    className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+                    className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] transition hover:border-violet-200 hover:shadow-[0_20px_50px_rgba(99,102,241,0.08)]"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-violet-50 to-indigo-50 text-violet-600">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-[22px] font-semibold text-slate-900">
-                          {value}
-                        </p>
+                        <p className="text-[22px] font-semibold text-slate-900">{value}</p>
                         <p className="mt-1 text-sm text-slate-500">{label}</p>
                       </div>
                     </div>
@@ -806,16 +785,16 @@ export default function DirectoryPage() {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
+      {/* ========== CTA ========== */}
       <section className="bg-[#f5f7fc] px-4 pb-10 pt-2 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-[#efe8ff] via-[#faf7ff] to-[#f1edf9] px-6 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-r from-[#efe8ff] via-[#faf7ff] to-[#f1edf9] px-6 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
           <div className="flex flex-col items-center justify-between gap-5 lg:flex-row">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-600">
                 <Phone className="h-7 w-7 rotate-[-20deg]" />
               </div>
               <div>
@@ -831,13 +810,13 @@ export default function DirectoryPage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="inline-flex h-11 items-center rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white hover:bg-violet-700"
+                className="inline-flex h-11 items-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-5 text-sm font-semibold text-white shadow-md shadow-violet-300 transition hover:scale-[1.02] hover:shadow-violet-400"
               >
                 Add Business
               </button>
               <button
                 type="button"
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700"
               >
                 Learn More
                 <ArrowRight className="h-4 w-4" />
