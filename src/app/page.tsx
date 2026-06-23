@@ -123,6 +123,29 @@ const blogs = [
   },
 ];
 
+const stats = [
+  {
+    value: "10,000+",
+    label: "Businesses Listed",
+    icon: Building2,
+  },
+  {
+    value: "50,000+",
+    label: "Happy Customers",
+    icon: Users,
+  },
+  {
+    value: "25,000+",
+    label: "Reviews",
+    icon: Star,
+  },
+  {
+    value: "200+",
+    label: "Cities Covered",
+    icon: MapPin,
+  },
+];
+
 function AdBar() {
   return (
     <div className="mx-auto flex h-16 max-w-5xl items-center justify-center rounded border border-slate-200 bg-slate-50 text-sm text-slate-400 shadow-sm">
@@ -436,36 +459,32 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["10,000+", "Businesses Listed", Building2],
-              ["50,000+", "Happy Customers", Users],
-              ["25,000+", "Reviews", Star],
-              ["200+", "Cities Covered", MapPin],
-            ].map(([value, label, Icon]) => (
-              <div
-                key={String(label)}
-                className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/15"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-3xl font-semibold text-white">
-                      {value}
-                    </h3>
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+  {stats.map(({ value, label, icon: Icon }) => (
+    <div
+      key={label}
+      className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/15"
+    >
+      <div className="flex items-center justify-between">
+        
+        <div>
+          <h3 className="text-3xl font-semibold text-white">
+            {value}
+          </h3>
 
-                    <p className="mt-1 text-sm text-indigo-100">
-                      {label}
-                    </p>
-                  </div>
+          <p className="mt-1 text-sm text-indigo-100">
+            {label}
+          </p>
+        </div>
 
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
+          <Icon className="h-6 w-6 text-white" />
+        </div>
 
+      </div>
+    </div>
+  ))}
+</div>
         </div>
       </section>
 
