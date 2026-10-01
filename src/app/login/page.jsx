@@ -21,7 +21,7 @@ export default function LoginPage() {
     }
     setSubmitting(true);
     try {
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "https://directory-backend-ai6r.onrender.com//api/v1").replace(/\/$/, "");
       const response = await fetch(`${apiUrl}/auth/${isRegistering ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.message || (isRegistering ? "Unable to create your account." : "Invalid email or password."));

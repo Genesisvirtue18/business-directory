@@ -1,6 +1,6 @@
 import { BusinessListing, Review } from './types';
 
-const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
+const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://directory-backend-ai6r.onrender.com//api/v1').replace(/\/$/, '');
 const token = () => typeof window === 'undefined' ? '' : localStorage.getItem('directflow_access_token') || '';
 export async function request(path: string, options: RequestInit = {}) { const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token() ? { Authorization: `Bearer ${token()}` } : {}), ...options.headers } }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.message || 'Unable to load dashboard data'); return body.data || {}; }
 const ago = (value?: string) => value ? new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(Math.round((new Date(value).getTime() - Date.now()) / 86400000), 'day') : 'Recently';
