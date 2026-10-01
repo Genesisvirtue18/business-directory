@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 100 700;
+  src: url("/fonts/material-symbols-outlined.ttf") format("truetype");
+  font-display: block;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -8,15 +16,30 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-raleway);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-raleway), Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: normal;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.kpi-shadow { box-shadow: 0 1px 3px rgba(76, 29, 149, .04), 0 1px 2px -1px rgba(76, 29, 149, .03); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 button,
 a,

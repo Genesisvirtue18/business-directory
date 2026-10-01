@@ -31,63 +31,16 @@ import {
   FaLinkedinIn,
   FaYoutube,
 } from "react-icons/fa";
+import Link from "next/link";
+import { getBusinesses, getCategories } from "@/lib/api";
+import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
+import { toHomeBusiness } from "@/lib/directory-data";
 
-const navItems = ["Home", "Businesses", "Categories", "Cities", "Deals", "Blog", "Contact Us"];
-
-const categories = [
-  { label: "Healthcare", icon: Stethoscope },
-  { label: "Dentists", icon: Smile },
-  { label: "Skin Care", icon: Sparkles },
-  { label: "Hospitals", icon: Hospital },
-  { label: "Real Estate", icon: HomeIcon },
-  { label: "Education", icon: GraduationCap },
-  { label: "Restaurants", icon: Utensils },
-  { label: "Salons", icon: Plus },
-  { label: "Fitness", icon: Dumbbell },
-  { label: "More", icon: Grid2X2 },
-];
-
-const businesses = [
-  {
-    name: "Oswal Jain Skin Clinic",
-    category: "Skin Care",
-    city: "Delhi, India",
-    rating: "4.8",
-    reviews: 128,
-    image: "url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=700&q=80')",
-  },
-  {
-    name: "Clinic Eximus",
-    category: "Dental Care",
-    city: "Mumbai, India",
-    rating: "4.6",
-    reviews: 96,
-    image: "url('https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=700&q=80')",
-  },
-  {
-    name: "Delhi Eye Care Centre",
-    category: "Eye Care",
-    city: "Delhi, India",
-    rating: "4.7",
-    reviews: 75,
-    image: "url('https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=700&q=80')",
-  },
-  {
-    name: "The Dental Studio",
-    category: "Dental Care",
-    city: "Bangalore, India",
-    rating: "4.5",
-    reviews: 62,
-    image: "url('https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=700&q=80')",
-  },
-  {
-    name: "Care & Cure Hospital",
-    category: "Hospital",
-    city: "Hyderabad, India",
-    rating: "4.4",
-    reviews: 51,
-    image: "url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80')",
-  },
+const navItems = [
+  { label: "Home", href: "/" }, { label: "Businesses", href: "/directory" },
+  { label: "Categories", href: "#categories" }, { label: "Cities", href: "/directory" },
+  { label: "Deals", href: "#deals" }, { label: "Blog", href: "#blog" },
+  { label: "Contact Us", href: "#contact" },
 ];
 
 const steps = [
@@ -164,7 +117,14 @@ function Stars() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const [{ items: businessItems = [] }, { items: categoryItems = [] }] = await Promise.all([
+    getBusinesses({ limit: 6 }),
+    getCategories({ limit: 10 }),
+  ]);
+  const categoryIcons = [Stethoscope, Smile, Sparkles, Hospital, HomeIcon, GraduationCap, Utensils, Plus, Dumbbell, Grid2X2];
+  const categories = categoryItems.map((category, index) => ({ id: category._id || category.id || `${category.name}-${index}`, slug: category.slug, label: category.name, icon: categoryIcons[index % categoryIcons.length] }));
+  const businesses = businessItems.map(toHomeBusiness);
   return (
     <main className="min-h-screen bg-white text-slate-950">
     <section className="relative overflow-hidden">
@@ -193,7 +153,7 @@ export default function Home() {
           <div className="mx-auto mt-4 flex h-16 max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-6 backdrop-blur-xl">
 
             {/* Logo */}
-            <a href="#" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-lg font-black text-white shadow-lg">
                 G
               </div>
@@ -206,22 +166,22 @@ export default function Home() {
                   Business Directory
                 </p>
               </div>
-            </a>
+            </Link>
 
             {/* Desktop Menu */}
             <nav className="hidden items-center gap-8 lg:flex">
-              {navItems.map((item) => (
+              {navItems.map(({ label, href }) => (
                 <a
-                  key={item}
-                  href="#"
-                  className={`relative text-sm font-semibold transition ${item === "Home"
+                  key={label}
+                  href={href}
+                  className={`relative text-sm font-semibold transition ${label === "Home"
                     ? "text-white"
                     : "text-slate-300 hover:text-white"
                     }`}
                 >
-                  {item}
+                  {label}
 
-                  {item === "Home" && (
+                  {label === "Home" && (
                     <span className="absolute -bottom-2 left-0 h-[2px] w-full rounded-full bg-violet-400" />
                   )}
                 </a>
@@ -230,14 +190,14 @@ export default function Home() {
 
             {/* Actions */}
             <div className="hidden items-center gap-3 lg:flex">
-              <button className="flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/login" className="flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
                 <Plus size={16} />
                 Add Business
-              </button>
+              </Link>
 
-              <button className="h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 text-sm font-bold text-white shadow-lg shadow-indigo-900/30 transition hover:scale-105">
+              <Link href="/login" className="flex h-10 items-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 text-sm font-bold text-white shadow-lg shadow-indigo-900/30 transition hover:scale-105">
                 Login
-              </button>
+              </Link>
             </div>
 
             {/* Mobile */}
@@ -263,10 +223,12 @@ export default function Home() {
             <div className="mt-8 max-w-4xl rounded-2xl bg-white/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.15)] backdrop-blur">
               <div className="grid items-center gap-2 md:grid-cols-[1fr_1fr_110px]">
 
+                <form action="/directory" method="get" id="home-search" className="contents">
                 <div className="flex h-14 items-center gap-3 rounded-xl px-4">
                   <Search className="h-5 w-5 text-indigo-500" />
                   <input
                     type="text"
+                    name="q"
                     placeholder="Search businesses..."
                     className="w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
                   />
@@ -276,21 +238,23 @@ export default function Home() {
                   <MapPin className="h-5 w-5 text-indigo-500" />
                   <input
                     type="text"
+                    name="city"
                     placeholder="City or location"
                     className="w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
                   />
                 </div>
 
-                <button className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-sm font-semibold text-white transition hover:scale-105">
+                <button type="submit" className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-sm font-semibold text-white transition hover:scale-105">
                   Search
                 </button>
+                </form>
 
               </div>
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold">
               <span>Popular Searches:</span>
               {["Dentist in Delhi", "Skin Clinic in Mumbai", "Restaurants in Bangalore", "Gyms in Pune"].map((item) => (
-                <a key={item} className="rounded-full border border-white/25 px-4 py-2 text-slate-200" href="#">
+                <a key={item} className="rounded-full border border-white/25 px-4 py-2 text-slate-200" href={`/directory?q=${encodeURIComponent(item.split(' in ')[0])}&city=${encodeURIComponent(item.split(' in ')[1] || '')}`}>
                   {item}
                 </a>
               ))}
@@ -314,7 +278,7 @@ export default function Home() {
                 </p>
 
                 <a
-                  href="#"
+                  href="/directory?verified=true"
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-violet-600"
                 >
                   Learn More
@@ -331,7 +295,7 @@ export default function Home() {
         <AdBar />
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+  <section id="categories" className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
 
   <div className="mb-8 text-center">
     <h2 className="text-2xl font-semibold text-slate-900">
@@ -344,10 +308,10 @@ export default function Home() {
   </div>
 
   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-    {categories.map(({ label, icon: Icon }) => (
+    {categories.map(({ id, slug, label, icon: Icon }) => (
       <a
-        key={label}
-        href="#"
+        key={id}
+        href={slug ? categoryListingPath("Delhi", { slug, id }) : "/directory"}
         className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 transition-all duration-300 hover:border-indigo-100 hover:shadow-lg"
       >
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-all group-hover:bg-indigo-600 group-hover:text-white">
@@ -369,7 +333,7 @@ export default function Home() {
 
 </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
+      <section id="businesses" className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-semibold text-slate-900">
@@ -381,7 +345,7 @@ export default function Home() {
           </div>
 
           <a
-            href="#"
+            href="/directory"
             className="hidden items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 md:flex"
           >
             View All
@@ -399,7 +363,7 @@ export default function Home() {
                 {/* Image */}
                 <div
                   className="h-24 w-24 shrink-0 rounded-xl bg-cover bg-center"
-                  style={{ backgroundImage: business.image }}
+                  style={{ backgroundImage: business.image ? `url("${business.image}")` : undefined }}
                 />
 
                 {/* Content */}
@@ -435,9 +399,9 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                    <Link href={businessDetailPath(business)} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
                       View
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -556,7 +520,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+      <section id="deals" className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <div
           className="relative overflow-hidden rounded-3xl"
           style={{
@@ -581,7 +545,7 @@ export default function Home() {
             </p>
 
             <a
-              href="#"
+              href="/directory"
               className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700"
             >
               Explore Deals
@@ -661,7 +625,7 @@ export default function Home() {
         <AdBar />
       </section>
 
-    <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
+    <section id="blog" className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
   
   {/* Header - More Compact */}
   <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -686,7 +650,7 @@ export default function Home() {
     </div>
 
     <a
-      href="#"
+      href="/directory"
       className="group hidden md:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
     >
       View All
@@ -731,9 +695,9 @@ export default function Home() {
             </span>
           </div>
           
-          <button className="rounded-xl bg-white/10 backdrop-blur-md px-4 py-2 text-xs font-medium text-white transition-all hover:bg-white hover:text-slate-900 border border-white/20 hover:border-white">
+          <Link href="/#blog" className="rounded-xl bg-white/10 backdrop-blur-md px-4 py-2 text-xs font-medium text-white transition-all hover:bg-white hover:text-slate-900 border border-white/20 hover:border-white">
             Read Article →
-          </button>
+          </Link>
         </div>
       </div>
     </article>
@@ -777,7 +741,7 @@ export default function Home() {
       
       {/* View All Mobile Button */}
       <a
-        href="#"
+        href="/directory"
         className="mt-1 flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 md:hidden"
       >
         View All Articles
@@ -818,20 +782,20 @@ export default function Home() {
 
       <div className="flex gap-3">
 
-        <a
-          href="#"
+        <Link
+          href="/login"
           className="inline-flex h-10 items-center rounded-xl bg-white px-5 text-sm font-semibold text-indigo-600"
         >
           Add Business
-        </a>
+        </Link>
 
-        <a
-          href="#"
+        <Link
+          href="/directory"
           className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-5 text-sm font-semibold text-white"
         >
           Learn More
           <ArrowRight className="h-4 w-4" />
-        </a>
+        </Link>
 
       </div>
 
@@ -840,7 +804,7 @@ export default function Home() {
   </div>
 </section>
 
-      <footer className="relative bg-[#061531] text-white">
+      <footer id="contact" className="relative bg-[#061531] text-white">
 
   {/* Top Border Glow */}
   <div className="h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
@@ -876,7 +840,7 @@ export default function Home() {
           {[ FaFacebookF,   FaInstagram,   FaLinkedinIn, FaYoutube].map((Icon, i) => (
             <a
               key={i}
-              href="#"
+              href={["https://facebook.com", "https://instagram.com", "https://linkedin.com", "https://youtube.com"][i]}
               className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-slate-300 transition hover:bg-indigo-600 hover:text-white"
             >
               <Icon size={18} />
@@ -913,7 +877,7 @@ export default function Home() {
             {section.links.map((link) => (
               <a
                 key={link}
-                href="#"
+                href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/login", "Dashboard": "/business-owner", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/#contact", "Sitemap": "/" })[link] || "/directory")}
                 className="block text-sm text-slate-400 transition hover:text-white"
               >
                 {link}
@@ -955,9 +919,9 @@ export default function Home() {
       </p>
 
       <div className="flex gap-6">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms</a>
-        <a href="#">Cookies</a>
+        <a href="/#contact">Privacy Policy</a>
+        <a href="/#contact">Terms</a>
+        <a href="/#contact">Cookies</a>
       </div>
 
     </div>
@@ -967,3 +931,4 @@ export default function Home() {
     </main>
   );
 }
+

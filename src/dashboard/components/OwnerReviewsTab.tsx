@@ -1,0 +1,9 @@
+import React from 'react';
+import { Review } from '../types';
+
+interface OwnerReviewsTabProps { reviews: Review[]; onOpenReplyReview: (review: Review) => void; onBackToDashboard: () => void; }
+
+export const OwnerReviewsTab: React.FC<OwnerReviewsTabProps> = ({ reviews, onBackToDashboard }) => {
+  const average = reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
+  return <main className="mx-auto w-full max-w-7xl space-y-4 px-4 pb-24 pt-5 sm:px-6 lg:px-8 md:pb-8"><div className="flex items-center gap-2"><button onClick={onBackToDashboard} className="material-symbols-outlined rounded-lg p-1 text-[#5300b7]">arrow_back</button><div><h2 className="text-[20px] font-bold">Reviews</h2><p className="text-[12px] text-[#7b7486]">{reviews.length} review{reviews.length === 1 ? '' : 's'} from your listing data</p></div></div><section className="rounded-xl border border-[#ccc3d7] bg-white p-4"><span className="text-[12px] text-[#7b7486]">Average rating</span><p className="mt-1 text-[32px] font-bold">{average.toFixed(1)} <span className="text-[13px] font-normal text-[#7b7486]">/ 5.0</span></p></section>{reviews.length ? <section className="space-y-3">{reviews.map((review) => <article key={review.id} className="rounded-xl border border-[#ccc3d7] bg-white p-4"><div className="flex items-start justify-between"><div><strong className="text-[13px]">{review.author}</strong><p className="text-[12px] text-amber-700">{review.rating}/5</p></div><span className="text-[11px] text-[#7b7486]">{review.timeAgo}</span></div><p className="mt-2 text-[13px] text-[#4a4455]">{review.comment || 'No written comment.'}</p>{review.verified && <span className="mt-3 inline-block text-[11px] font-medium text-emerald-800">Verified review</span>}</article>)}</section> : <p className="rounded-xl border border-[#ccc3d7] bg-white p-4 text-[13px] text-[#7b7486]">No reviews have been received yet.</p>}</main>;
+};

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import type { ReactNode, SVGProps } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,110 +22,11 @@ import {
   Video,
   ChevronRight
 } from "lucide-react";
+import Link from "next/link";
+import { getBusiness, getBusinesses } from "@/lib/api";
+import { businessDetailPath, toDirectoryBusiness } from "@/lib/directory-data";
 
-const breadcrumbs = ["Home", "Delhi", "Skin Clinic", "Oswal Jain Skin Clinic"];
-
-const gallery = [
-  "/images/hero-bg.png",
-  "/images/hero-bg.png",
-  "/images/hero-bg.png",
-  "/images/hero-bg.png",
-];
-
-const highlights = [
-  "Advanced Technology",
-  "Experienced Doctors",
-  "Hygienic & Safe",
-  "Personalized Care",
-  "Affordable Pricing",
-  "100% Satisfaction",
-];
-
-const services = [
-  {
-    title: "Laser Skin Treatment",
-    text: "Advanced laser treatments for acne scars, pigmentation and skin rejuvenation.",
-    icon: Syringe,
-  },
-  {
-    title: "Hair Fall Treatment",
-    text: "Specialised solutions for hair fall, dandruff and scalp problems.",
-    icon: Stethoscope,
-  },
-  {
-    title: "Acne Treatment",
-    text: "Expert care for acne, pimples scars and related skin concerns.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Anti-Aging Solutions",
-    text: "Wrinkle reduction, skin tightening and anti-aging treatments.",
-    icon: Video,
-  },
-  {
-    title: "Hydra Facial",
-    text: "Deep cleansing and hydration for glowing, healthy skin.",
-    icon: SparkIcon,
-  },
-];
-
-const reviews = [
-  {
-    name: "Priya Sharma",
-    ago: "2 days ago",
-    text: "Amazing experience! The doctors are very professional and the results are beyond my expectations.",
-  },
-  {
-    name: "Rahul Verma",
-    ago: "1 week ago",
-    text: "Best skin clinic in Delhi. Advanced equipment and friendly staff. Highly recommended!",
-  },
-  {
-    name: "Anjali Mehta",
-    ago: "2 weeks ago",
-    text: "I had a great experience with laser treatment. Very good results and painless procedure.",
-  },
-  {
-    name: "Neha Kapoor",
-    ago: "3 weeks ago",
-    text: "Professional service and excellent care. My skin has improved so much!",
-  },
-];
-
-const related = [
-  {
-    name: "Dr. Aesthetica Clinic",
-    rating: "4.8",
-    reviews: "210",
-    area: "South Delhi",
-  },
-  {
-    name: "DermaWorld Skin & Laser",
-    rating: "4.7",
-    reviews: "178",
-    area: "West Delhi",
-  },
-  {
-    name: "ClearSkin Dermatology",
-    rating: "4.6",
-    reviews: "150",
-    area: "Central Delhi",
-  },
-  {
-    name: "Radiant Skin Clinic",
-    rating: "4.5",
-    reviews: "98",
-    area: "South Delhi",
-  },
-  {
-    name: "Skin Science Clinic",
-    rating: "4.6",
-    reviews: "120",
-    area: "North Delhi",
-  },
-];
-
-function SparkIcon(props: SVGProps<SVGSVGElement>) {
+function SparkIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
       <path
@@ -139,11 +39,11 @@ function SparkIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function StarRow() {
+function StarRow({ rating = 0 }) {
   return (
     <span className="inline-flex items-center gap-0.5 text-amber-400">
       {Array.from({ length: 5 }).map((_, index) => (
-        <Star key={index} className="h-3.5 w-3.5 fill-current" />
+        <Star key={index} className={`h-3.5 w-3.5 ${index < Math.round(Number(rating)) ? 'fill-current' : 'text-slate-200'}`} />
       ))}
     </span>
   );
@@ -154,11 +54,6 @@ function SectionCard({
   children,
   className = "",
   noCard = false,
-}: {
-  title: string;
-  children: ReactNode;
-  className?: string;
-  noCard?: boolean;
 }) {
   return (
     <section
@@ -179,14 +74,53 @@ function SectionCard({
   );
 }
 
-export default function BusinessDetailPage() {
+export default async function BusinessDetailPage({ params }) {
+  const { slug } = await params;
+  const business = await getBusiness(slug);
+  const { items: relatedItems = [] } = await getBusinesses({ limit: 5 });
+  if (!business) {
+    return <main className="min-h-screen bg-[#f5f7fc] p-8 text-center text-slate-600">Business not found.</main>;
+  }
+  const breadcrumbs = ["Home", business.address?.city, business.keywords?.[0], business.name].filter(Boolean);
+  const gallery = [
+    ...(Array.isArray(business.images) ? business.images : []),
+    business.logo,
+  ].filter(isImageSource);
+  if (!gallery.length) gallery.push("/images/hero-bg.png");
+  const highlights = business.highlights?.length ? business.highlights : business.keywords || [];
+  const services = (business.services || []).map((title, index) => ({ title, text: business.description || "", icon: [Syringe, Stethoscope, ShieldCheck, Video, SparkIcon][index % 5] }));
+  const reviews = (business.reviews || []).map((review) => ({
+    id: review._id,
+    name: review.reviewerName,
+    rating: Number(review.rating || 0),
+    ago: review.createdAt ? new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(review.createdAt)) : "",
+    text: review.comment,
+  }));
+  const related = relatedItems.filter((item) => item.slug !== slug).map(toDirectoryBusiness);
+  const address = [business.address?.addressLine1, business.address?.addressLine2, business.address?.landmark, business.address?.locality, business.address?.city, business.address?.state, business.address?.postalCode].filter(Boolean).join(", ");
+  const workingHours = (business.workingHours || []).map((entry) => entry.isClosed ? `${entry.day}: Closed` : `${entry.day}: ${entry.opens} - ${entry.closes}`);
+  const categoryName = business.category?.name || business.keywords?.[0] || "Business";
+  const contactOptions = [
+    business.phone && { icon: Phone, title: business.phone, sub: "Call Business", href: `tel:${business.phone}` },
+    business.whatsapp && { icon: MessageSquare, title: business.whatsapp, sub: "WhatsApp", href: `https://wa.me/${business.whatsapp.replace(/\D/g, "")}` },
+    business.email && { icon: Globe, title: business.email, sub: "Send Email", href: `mailto:${business.email}` },
+    business.website && { icon: Globe, title: business.website, sub: "Visit Website", href: business.website },
+    ...Object.entries(business.socialLinks || {}).filter(([, url]) => url).map(([platform, url]) => ({ icon: Globe, title: platform, sub: `Follow on ${platform}`, href: url })),
+  ].filter(Boolean);
+  const detailStats = [
+    { value: business.reviewCount || 0, label: "Total Reviews", icon: Star },
+    { value: business.viewCount || 0, label: "Profile Views", icon: Users },
+    { value: `${Number(business.averageRating || 0).toFixed(1)}/5`, label: "Average Rating", icon: BadgeCheck },
+    { value: business.leadCount || 0, label: "Customer Leads", icon: ShieldCheck },
+  ];
+  const directionsUrl = business.location?.coordinates ? `https://www.google.com/maps/search/?api=1&query=${business.location.coordinates[1]},${business.location.coordinates[0]}` : undefined;
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
       {/* ========== HEADER ========== */}
       <section className="bg-[#030818] text-white">
         <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
           <header className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl lg:h-20 lg:flex-nowrap lg:px-6">
-            <a href="/directory" className="flex items-center gap-3">
+            <Link href="/directory" className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-500 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
                 G
               </div>
@@ -198,7 +132,7 @@ export default function BusinessDetailPage() {
                   Business Directory
                 </p>
               </div>
-            </a>
+            </Link>
 
             <nav className="hidden flex-wrap items-center gap-5 xl:flex">
               {["Home", "Businesses", "Categories", "Cities", "Deals", "Blog", "Contact Us"].map(
@@ -269,6 +203,7 @@ export default function BusinessDetailPage() {
                   <div className="relative aspect-[4/3] overflow-hidden rounded-[8px] bg-slate-100">
                     <Image
                       src={gallery[0]}
+                      unoptimized
                       alt="Business interior"
                       fill
                       className="object-cover object-center"
@@ -301,6 +236,7 @@ export default function BusinessDetailPage() {
                     >
                       <Image
                         src={src}
+                        unoptimized
                         alt={`Gallery image ${index + 1}`}
                         fill
                         className="object-cover object-center"
@@ -319,27 +255,27 @@ export default function BusinessDetailPage() {
               {/* Info */}
               <div>
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-                  Oswal Jain Skin Clinic
+                  {business.name}
                 </h2>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-amber-500">★</span>
-                    <span className="font-semibold text-slate-900">4.9</span>
+                    <span className="font-semibold text-slate-900">{Number(business.averageRating || 0).toFixed(1)}</span>
                   </span>
                   <span className="text-slate-300">|</span>
-                  <span className="text-slate-500">(320 Reviews)</span>
+                  <span className="text-slate-500">({business.reviewCount || 0} Reviews)</span>
                   <span className="text-slate-300">|</span>
                   <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600">
                     <CircleCheckBig className="h-4 w-4" />
                     Open Now
                   </span>
                   <span className="text-slate-300">|</span>
-                  <span className="text-slate-500">Closes 9:00 PM</span>
+                  <span className="text-slate-500">{workingHours[0] || "Hours not provided"}</span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-600">
-                  {["Skin Clinic", "Dermatologist", "Hair Treatment"].map((item) => (
+                  {highlights.map((item) => (
                     <span key={item} className="rounded-full bg-slate-100 px-3 py-1">
                       {item}
                     </span>
@@ -348,9 +284,9 @@ export default function BusinessDetailPage() {
 
                 <div className="mt-6 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-3">
                   {[
-                    { label: "Established", value: "2010", icon: CalendarDays },
-                    { label: "Team", value: "15+ Staff", icon: Users },
-                    { label: "Location", value: "Delhi, India", icon: MapPin },
+                    { label: "Status", value: business.verificationStatus || "Pending", icon: CalendarDays },
+                    { label: "Reviews", value: business.reviewCount || 0, icon: Users },
+                    { label: "Location", value: business.address?.city || "Not provided", icon: MapPin },
                   ].map(({ label, value, icon: Icon }) => (
                     <div key={label} className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
@@ -367,9 +303,7 @@ export default function BusinessDetailPage() {
                 </div>
 
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                  Oswal Jain Skin Clinic is a leading dermatology and skincare center in Delhi
-                  with advanced technology and experienced dermatologists dedicated to providing
-                  the best skin and hair care solutions.
+                  {business.description || "This business has not added a description yet."}
                 </p>
 
                 <button
@@ -381,14 +315,14 @@ export default function BusinessDetailPage() {
                 </button>
 
                 <div className="mt-4 flex flex-wrap items-center gap-3 overflow-x-auto">
-                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white">
+                  <a href={business.phone ? `tel:${business.phone}` : undefined} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white">
                     <Phone className="h-4 w-4" />
                     Call
-                  </button>
-                  <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
+                  </a>
+                  <a href={business.website} target="_blank" rel="noreferrer" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
                     <Globe className="h-4 w-4" />
                     Website
-                  </button>
+                  </a>
                   <button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700">
                     <Share2 className="h-4 w-4" />
                     Share
@@ -425,12 +359,10 @@ export default function BusinessDetailPage() {
               <div className="grid gap-6 p-5 lg:grid-cols-[1.25fr_0.75fr]">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">
-                    About Oswal Jain Skin Clinic
+                    About {business.name}
                   </h3>
                   <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-                    Oswal Jain Skin Clinic is one of Delhi&apos;s most trusted dermatology and
-                    skincare centers. We offer advanced treatments for skin, hair, laser, and
-                    cosmetology with world-class technology and experienced doctors.
+                    {business.description || "This business has not added a description yet."}
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -451,10 +383,10 @@ export default function BusinessDetailPage() {
                     <BadgeCheck className="h-8 w-8" />
                   </div>
                   <p className="mt-5 text-[22px] font-semibold text-violet-700">
-                    Trusted by 10,000+ Happy Patients
+                    {business.verificationStatus === "verified" ? "Verified Business" : "Business Profile"}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Quality care you can rely on
+                    {categoryName}
                   </p>
                 </div>
               </div>
@@ -484,37 +416,26 @@ export default function BusinessDetailPage() {
                 <div className="space-y-4 text-sm text-slate-600">
                   <div className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 text-violet-600" />
-                    <span>C-1/48, First Floor, Rajouri Garden, New Delhi - 110027</span>
+                    <span>{address || "Address not provided"}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <Clock3 className="mt-0.5 h-4 w-4 text-violet-600" />
-                    <span>
-                      Mon - Sat: 10:00 AM - 9:00 PM
-                      <br />
-                      Sunday: 10:00 AM - 6:00 PM
-                    </span>
+                    <span>{workingHours.length ? workingHours.map((entry) => <span key={entry} className="block">{entry}</span>) : "Hours not provided"}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <MessageSquare className="mt-0.5 h-4 w-4 text-violet-600" />
-                    <span>info@oswaljainskin.com</span>
+                    <span>{business.email || "Email not provided"}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <Globe className="mt-0.5 h-4 w-4 text-violet-600" />
-                    <span>www.oswaljainskinclinic.com</span>
+                    <span>{business.website || "Website not provided"}</span>
                   </div>
                 </div>
               </SectionCard>
 
               <SectionCard title="Why Choose Us?">
                 <div className="space-y-3 text-sm text-slate-600">
-                  {[
-                    "10+ Years of Experience",
-                    "Experienced & Certified Doctors",
-                    "Advanced & Latest Technology",
-                    "Safe & Hygienic Environment",
-                    "Personalized Treatment Plans",
-                    "Thousands of Happy Patients",
-                  ].map((item) => (
+                  {highlights.map((item) => (
                     <div key={item} className="flex items-center gap-2">
                       <CircleCheckBig className="h-4 w-4 text-violet-600" />
                       <span>{item}</span>
@@ -525,14 +446,12 @@ export default function BusinessDetailPage() {
 
               <SectionCard title="Location">
                 <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-slate-100">
-                  <div className="flex h-48 items-center justify-center bg-[linear-gradient(135deg,#e5e7eb_0%,#f8fafc_45%,#dbeafe_100%)] text-slate-400">
-                    Map Preview
-                  </div>
+                  {business.mapEmbedUrl ? <iframe src={business.mapEmbedUrl} title={`Map for ${business.name}`} loading="lazy" referrerPolicy="no-referrer" sandbox="allow-scripts allow-forms allow-popups" className="h-48 w-full border-0" /> : <div className="flex h-48 items-center justify-center bg-[linear-gradient(135deg,#e5e7eb_0%,#f8fafc_45%,#dbeafe_100%)] text-slate-400">Map Preview</div>}
                 </div>
-                <button className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white text-sm font-semibold text-violet-700 hover:bg-violet-50">
+                <a href={directionsUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white text-sm font-semibold text-violet-700 hover:bg-violet-50">
                   <MapPin className="h-4 w-4" />
                   Get Directions
-                </button>
+                </a>
               </SectionCard>
             </div>
           </div>
@@ -567,9 +486,7 @@ export default function BusinessDetailPage() {
                   />
                   <select className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm text-slate-600 outline-none focus:border-violet-500">
                     <option>Select Service</option>
-                    <option>Skin Treatment</option>
-                    <option>Hair Treatment</option>
-                    <option>Laser Treatment</option>
+                    {business.services?.map((service) => <option key={service}>{service}</option>)}
                   </select>
                   <textarea
                     rows={3}
@@ -588,13 +505,12 @@ export default function BusinessDetailPage() {
 
               {/* Contact Options */}
               <div className="space-y-3">
-                {[
-                  { icon: Phone, title: "+91 98765 43210", sub: "Call Business" },
-                  { icon: MessageSquare, title: "WhatsApp Support", sub: "Instant Chat" },
-                  { icon: Globe, title: "info@oswaljainskin.com", sub: "Send Email" },
-                ].map(({ icon: Icon, title, sub }) => (
-                  <div
-                    key={title}
+                {contactOptions.map(({ icon: Icon, title, sub, href }) => (
+                  <a
+                    key={`${sub}-${title}`}
+                    href={href}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noreferrer" : undefined}
                     className="flex items-center justify-between rounded-[8px] border border-slate-200 bg-white p-4 transition hover:border-violet-200 hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3">
@@ -607,7 +523,7 @@ export default function BusinessDetailPage() {
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 text-slate-400" />
-                  </div>
+                  </a>
                 ))}
               </div>
             </section>
@@ -634,12 +550,7 @@ export default function BusinessDetailPage() {
 
             {/* Stats */}
             <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-              {[
-                { value: "320+", label: "Total Reviews", icon: Star },
-                { value: "10,000+", label: "Happy Patients", icon: Users },
-                { value: "4.9/5", label: "Average Rating", icon: BadgeCheck },
-                { value: "10+", label: "Years Experience", icon: ShieldCheck },
-              ].map(({ value, label, icon: Icon }) => (
+              {detailStats.map(({ value, label, icon: Icon }) => (
                 <div
                   key={label}
                   className="flex items-center gap-3 rounded-lg border border-slate-200 px-4 py-3"
@@ -659,12 +570,14 @@ export default function BusinessDetailPage() {
 
         {/* ===== BOTTOM SECTIONS ===== */}
         <div className="mt-6 space-y-6">
+          {business.offers?.some(offer => offer.isActive !== false) ? <SectionCard title="Current Offers"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{business.offers.filter(offer => offer.isActive !== false).map(offer => <article key={offer._id || offer.title} className="rounded-lg border border-violet-200 bg-violet-50 p-4"><h3 className="font-semibold text-slate-900">{offer.title}</h3>{offer.description ? <p className="mt-1 text-sm text-slate-600">{offer.description}</p> : null}{offer.code ? <p className="mt-3 inline-block rounded bg-white px-2 py-1 text-xs font-bold text-violet-700">Code: {offer.code}</p> : null}</article>)}</div></SectionCard> : null}
+          {business.faqs?.length ? <SectionCard title="Frequently Asked Questions"><div className="space-y-4">{business.faqs.map(faq => <article key={faq._id || faq.question} className="border-b border-slate-100 pb-3 last:border-0"><h3 className="font-semibold text-slate-900">{faq.question}</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-600">{faq.answer}</p></article>)}</div></SectionCard> : null}
           {/* Reviews */}
           <SectionCard title="What Our Patients Say" noCard>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {reviews.map((review) => (
                 <div
-                  key={review.name}
+                  key={review.id || `${review.name}-${review.ago}`}
                   className="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-5"
                 >
                   <div className="flex items-start gap-3">
@@ -677,7 +590,7 @@ export default function BusinessDetailPage() {
                           <h3 className="text-base font-semibold text-slate-900">
                             {review.name}
                           </h3>
-                          <StarRow />
+                          <StarRow rating={review.rating} />
                         </div>
                         <span className="whitespace-nowrap text-xs text-slate-400">
                           {review.ago}
@@ -690,6 +603,7 @@ export default function BusinessDetailPage() {
                   </p>
                 </div>
               ))}
+              {!reviews.length ? <p className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">No reviews yet.</p> : null}
             </div>
           </SectionCard>
 
@@ -713,14 +627,14 @@ export default function BusinessDetailPage() {
                     <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">
                       {item.name}
                     </h3>
-                    <p className="mt-1 text-xs text-slate-500">Skin Clinic</p>
+                    <p className="mt-1 text-xs text-slate-500">{item.category}</p>
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs text-slate-500">{item.reviews} Reviews</span>
+                      <span className="text-xs text-slate-500">{item.reviews}</span>
                       <span className="text-xs font-medium text-violet-600">{item.area}</span>
                     </div>
-                    <button className="mt-3 h-9 w-full rounded-lg bg-violet-600 text-xs font-medium text-white transition hover:bg-violet-700">
+                    <Link href={businessDetailPath(item)} className="mt-3 flex h-9 w-full items-center justify-center rounded-lg bg-violet-600 text-xs font-medium text-white transition hover:bg-violet-700">
                       View Details
-                    </button>
+                    </Link>
                   </div>
                 </article>
               ))}
@@ -731,3 +645,15 @@ export default function BusinessDetailPage() {
     </main>
   );
 }
+
+function isImageSource(value) {
+  if (typeof value !== "string" || !value.trim()) return false;
+  if (value.startsWith("/")) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
