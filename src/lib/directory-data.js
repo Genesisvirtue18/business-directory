@@ -46,7 +46,7 @@ export function toDirectoryBusiness(business, index = 0) {
 export function toHomeBusiness(business) {
   return {
     ...business,
-    category: business.keywords?.[0] || "Business",
+    category: business.category?.name || business.keywords?.[0] || "Business",
     city: business.address?.city || "Location not provided",
     rating: Number(business.averageRating || 0).toFixed(1),
     reviews: business.reviewCount || 0,

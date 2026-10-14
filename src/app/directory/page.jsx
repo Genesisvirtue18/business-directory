@@ -1,27 +1,39 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
   Building2,
-  Dumbbell,
+  BriefcaseBusiness,
+  Building,
+  ChevronRight,
   Grid2X2,
-  Heart,
   MapPin,
-  Menu,
   Phone,
   Plus,
   Search,
   ShieldCheck,
-  Smile,
   Sparkles,
   Star,
   Store,
-  Users,
   SlidersHorizontal,
+  Stethoscope,
+  Wrench,
 } from "lucide-react";
 import { getBusinesses, getCategories, getCities } from "@/lib/api";
-import { categoryListingPath, toDirectoryBusiness } from "@/lib/directory-data";
+import { businessDetailPath, categoryListingPath, toDirectoryBusiness } from "@/lib/directory-data";
+import UseMyLocationButton from "@/components/UseMyLocationButton";
+import { absoluteSiteUrl, buildDirectoryJsonLd, jsonLdString } from "@/lib/business-schema";
+
+export async function generateMetadata({ searchParams }) {
+  const params = await searchParams;
+  const hasSearchState = Object.keys(params || {}).some(key => !["limit"].includes(key));
+  return {
+    title: "Find Local Businesses Near You | Genesis Virtue",
+    description: "Discover local businesses by category, location, rating, and distance.",
+    alternates: { canonical: absoluteSiteUrl("/directory") },
+    ...(hasSearchState ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 function Stars({ rating = 0 }) {
   return (
@@ -37,99 +49,33 @@ function BusinessCard({
   business,
   sponsored = false,
 }) {
+  const detailHref = businessDetailPath(business);
   return (
-    <article
-      className={[
-        "group overflow-hidden rounded-lg border bg-white transition-all duration-300 hover:shadow-xl",
-        sponsored
-          ? "border-violet-200 p-4 hover:border-violet-300"
-          : "border-slate-100 p-0 hover:border-violet-200 hover:shadow-[0_20px_50px_rgba(99,102,241,0.12)]",
-      ].join(" ")}
-    >
-      <div
-        className={[
-          "relative overflow-hidden",
-          sponsored ? "h-48 rounded-lg" : "h-44 rounded-lg m-4 mb-0",
-        ].join(" ")}
-      >
-        <div className={["absolute inset-0 bg-gradient-to-br", business.swatch].join(" ")} />
-
-        {business.image ? <img src={business.image} alt={`${business.name} photos`} className="absolute inset-0 h-full w-full object-cover" /> : null}
-
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.6),transparent_24%),radial-gradient(circle_at_84%_16%,rgba(255,255,255,0.3),transparent_20%),linear-gradient(to_top,rgba(15,23,42,0.18),transparent_70%)]" />
-
-        {!business.image ? <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/70 bg-white/90 text-xl font-semibold text-slate-700 shadow-[0_16px_38px_rgba(15,23,42,0.16)] transition-transform group-hover:scale-105">
-            {business.short}
-          </div>
-        </div> : null}
-
-        <div className="absolute left-3 top-3 flex items-center gap-2">
-          <span className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur-sm">
-            {business.badge}
-          </span>
-          {business.isFeatured && !sponsored ? (
-            <span className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-              Featured
-            </span>
-          ) : null}
+    <article className="group flex min-h-[170px] flex-col justify-between gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-md sm:flex-row">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start gap-2">
+          <Store className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+          <h3 className="truncate text-base font-semibold text-slate-900 group-hover:text-blue-700"><Link href={detailHref}>{business.name}</Link></h3>
         </div>
-
-        <button
-          type="button"
-          aria-label="Save business"
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm transition-colors hover:bg-white hover:text-violet-600"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className={sponsored ? "px-1 pt-4" : "p-4 pt-4"}>
-        <h3 className="truncate text-[15px] font-semibold text-slate-900 group-hover:text-violet-700">
-          {business.name}
-        </h3>
-
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-semibold text-amber-500">{business.rating}</span>
-          <Stars rating={business.rating} />
-          <span className="text-xs text-slate-500">({business.reviews})</span>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <span className="rounded bg-emerald-700 px-1.5 py-0.5 font-bold text-white">{business.rating} ★</span>
+          <span>{business.reviews} Ratings</span>
+          {business.verified ? <span className="inline-flex items-center gap-1 font-semibold text-blue-700"><BadgeCheck className="h-3.5 w-3.5" />Verified</span> : null}
+          {business.isFeatured || sponsored ? <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800">Top rated</span> : null}
         </div>
-
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
-            {business.category}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {business.area}
-          </span>
-        </div>
-
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-          <span className="font-semibold text-emerald-600">{business.status}</span>
-          {"closesAt" in business ? (
-            <span className="text-slate-500">{business.closesAt}</span>
-          ) : null}
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <a
-            href={business.phone ? `tel:${business.phone}` : undefined}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-violet-600 transition-colors hover:border-violet-200 hover:bg-violet-50"
-          >
-            <Phone className="h-4 w-4" />
-            Call
-          </a>
-
-          <Link
-            href={`/${(business.address?.city || "india").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}/${business.slug}/${encodeURIComponent(business._id || business.id || business.slug)}_BZDET`}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-sm font-semibold text-white shadow-sm shadow-violet-300 transition-all hover:scale-[1.02] hover:shadow-violet-400"
-          >
-            View Profile
-          </Link>
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-600"><MapPin className="h-3.5 w-3.5 shrink-0" />{business.area}{business.address?.city ? `, ${business.address.city}` : ""}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5"><span className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-600">{business.category}</span><span className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-600">{business.status}</span></div>
+        <p className="mt-2 text-xs font-semibold text-amber-700">⚡ Quick response available</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a href={business.phone ? `tel:${business.phone}` : undefined} className="inline-flex h-8 items-center gap-1.5 rounded bg-green-700 px-3 text-xs font-semibold text-white"><Phone className="h-3.5 w-3.5" />{business.phone || "Call"}</a>
+          {business.whatsapp ? <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} className="inline-flex h-8 items-center rounded border border-slate-200 px-3 text-xs font-semibold text-slate-700">WhatsApp</a> : null}
+          <Link href={detailHref} className="inline-flex h-8 items-center rounded bg-[#0876ce] px-3 text-xs font-semibold text-white">Get Best Deal</Link>
         </div>
       </div>
+      <Link aria-label={`View photos and details for ${business.name}`} href={detailHref} className="relative h-28 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:h-28 sm:w-36">
+        {business.image ? <img src={business.image} alt={`${business.name}`} className="h-full w-full object-cover transition group-hover:scale-105" /> : <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${business.swatch} text-lg font-semibold text-slate-600`}>{business.short}</div>}
+        <span className="absolute bottom-1 right-1 rounded bg-black/65 px-2 py-1 text-[10px] font-semibold text-white">Photos</span>
+      </Link>
     </article>
   );
 }
@@ -140,16 +86,27 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
   const categorySlug = routeCategory || params?.category;
   const page = Math.max(1, Number(params?.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(params?.limit) || 24));
+  const radiusMeters = Math.min(50000, Math.max(100, Number(params?.radiusMeters) || 10000));
+  const hasCoordinates = params?.lat !== undefined && params?.lng !== undefined;
   const [{ items: businessItems = [], pagination = {} }, { items: categoryItems = [] }, { items: cityItems = [] }] = await Promise.all([
-    getBusinesses({ page, limit, q: params?.q, city: cityName, locality: params?.locality, state: params?.state, category: categorySlug, verified: params?.verified, minimumRating: params?.minimumRating, sort: params?.sort }),
+    getBusinesses({ page, limit, q: params?.q, city: hasCoordinates ? undefined : cityName, locality: hasCoordinates ? undefined : params?.locality, state: hasCoordinates ? undefined : params?.state, category: categorySlug, verified: params?.verified, minimumRating: params?.minimumRating, lat: params?.lat, lng: params?.lng, radiusMeters, openNow: params?.openNow, sort: params?.sort === "distance" ? "relevance" : params?.sort }),
     getCategories({ limit: 20 }),
     getCities({ limit: 20 }),
   ]);
-  const navItems = ["Home", "Businesses", "Categories", "Cities", "Deals", "Blog", "Contact Us"];
   const businesses = businessItems.map(toDirectoryBusiness);
-  const pageHref = targetPage => { const query = new URLSearchParams(); for (const [key, value] of Object.entries({ q: params?.q, city: cityName, locality: params?.locality, state: params?.state, category: categorySlug, verified: params?.verified, minimumRating: params?.minimumRating, sort: params?.sort, limit })) if (value) query.set(key, String(value)); query.set('page', String(targetPage)); return `/directory?${query.toString()}`; };
+  const pageHref = targetPage => { const query = new URLSearchParams(); for (const [key, value] of Object.entries({ q: params?.q, city: cityName, locality: params?.locality, state: params?.state, category: categorySlug, verified: params?.verified, minimumRating: params?.minimumRating, lat: params?.lat, lng: params?.lng, radiusMeters: hasCoordinates ? radiusMeters : undefined, openNow: params?.openNow, sort: params?.sort, limit })) if (value !== undefined && value !== "") query.set(key, String(value)); query.set('page', String(targetPage)); return `/directory?${query.toString()}`; };
+  const selectedCategory = categoryItems.find(item => item.slug === categorySlug);
+  const citySlug = String(cityName || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const categoryPath = selectedCategory && citySlug ? categoryListingPath(cityName, selectedCategory) : "/directory";
+  const directorySchema = buildDirectoryJsonLd(businessItems, hasCoordinates ? "/directory" : categoryPath);
   const sponsoredBusinesses = businesses.filter((business) => business.isFeatured);
   const regularBusinesses = businesses.filter((business) => !business.isFeatured);
+  const promoCategories = [
+    { title: "B2B", subtitle: "Quick Quotes", query: "B2B services", color: "bg-[#1178cf]", icon: BriefcaseBusiness },
+    { title: "REPAIRS & SERVICES", subtitle: "Find nearby help", query: "Repairs and Services", color: "bg-[#2855a0]", icon: Wrench },
+    { title: "REAL ESTATE", subtitle: "Find your place", query: "Real Estate", color: "bg-[#6766cf]", icon: Building },
+    { title: "DOCTORS", subtitle: "Book a visit", query: "Doctors", color: "bg-[#008968]", icon: Stethoscope },
+  ];
   const stats = [
     { value: pagination.totalItems || 0, label: "Published Listings", icon: ShieldCheck },
     { value: cityItems.length, label: "Cities Covered", icon: MapPin },
@@ -158,176 +115,54 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
   ];
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
-      {/* ========== HERO ========== */}
-      <section className="relative isolate overflow-hidden bg-[#030818] text-white">
-        <Image
-          src="/images/hero-bg.png"
-          alt="Delhi skyline with India Gate at dusk"
-          fill
-          preload
-          sizes="100vw"
-          className="object-cover object-center opacity-90"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.88)_36%,rgba(2,6,23,0.66)_67%,rgba(2,6,23,0.28)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_22%,rgba(104,92,255,0.18),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(255,157,91,0.16),transparent_24%),radial-gradient(circle_at_70%_85%,rgba(121,78,255,0.12),transparent_28%)]" />
-
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-5 lg:px-8 lg:pb-16 lg:pt-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(directorySchema) }} />
+      {/* ========== DIRECTORY HEADER ========== */}
+      <section className="border-b border-slate-200 bg-white text-slate-900">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
           {/* Header */}
-          <header className="flex h-16 items-center justify-between rounded-lg border border-white/10 bg-white/10 px-4 backdrop-blur-xl lg:h-20 lg:px-6">
-            <a href="#" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
-                G
-              </div>
-              <div className="leading-tight">
-                <h1 className="text-[17px] font-semibold text-white lg:text-xl">
-                  Genesis Virtue
-                </h1>
-                <p className="text-[11px] text-slate-300 lg:text-xs">
-                  Business Directory
-                </p>
-              </div>
-            </a>
-
-            <nav className="hidden items-center gap-7 xl:flex">
-              {navItems.map((item, index) => (
-                <a
-                  key={item}
-                  href="#"
-                  className={[
-                    "text-sm font-medium transition",
-                    index === 0 ? "text-white" : "text-slate-300 hover:text-white",
-                  ].join(" ")}
-                >
-                  {item}
-                </a>
-              ))}
-            </nav>
-
-            <div className="hidden items-center gap-3 lg:flex">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                <Plus className="h-4 w-4" />
-                Add Business
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(99,102,241,0.35)] transition hover:shadow-[0_10px_40px_rgba(99,102,241,0.5)]"
-              >
-                <Users className="h-4 w-4" />
-                Login / Sign Up
-              </button>
-            </div>
-
-            <button
-              type="button"
-              aria-label="Open menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white xl:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+          <header className="flex min-h-[68px] flex-wrap items-center justify-between gap-3 border-b border-slate-100 py-2.5">
+            <Link href="/directory" className="shrink-0 text-2xl font-extrabold tracking-[-1.5px] text-violet-700">Genesis Virtue</Link>
+            <form action="/directory" method="get" className="order-3 flex w-full max-w-xl items-center gap-2 sm:order-none sm:flex-1 sm:px-4">
+              <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3"><MapPin className="h-4 w-4 shrink-0 text-slate-400" /><input name="city" defaultValue={cityName || ""} placeholder="City" className="w-full bg-transparent text-sm outline-none" /></label>
+              <label className="flex h-10 min-w-0 flex-[1.5] items-center gap-2 rounded-md border border-slate-300 px-3"><input name="q" defaultValue={params?.q || selectedCategory?.name || ""} placeholder="Business or service" className="w-full bg-transparent text-sm outline-none" /><button aria-label="Search" className="-mr-2 flex h-8 w-9 shrink-0 items-center justify-center rounded bg-violet-700 text-white"><Search className="h-4 w-4" /></button></label>
+              {categorySlug ? <input type="hidden" name="category" value={categorySlug} /> : null}
+            </form>
+            <div className="flex items-center gap-2"><Link href="/business-owner" className="hidden items-center gap-1 rounded border border-slate-300 px-2.5 py-2 text-xs font-semibold sm:flex"><Plus className="h-3.5 w-3.5" />Free Listing</Link><Link href="/login" className="rounded bg-[#0876ce] px-3 py-2 text-xs font-semibold text-white">Login / Sign Up</Link></div>
           </header>
-
-          {/* Hero Content */}
-          <div className="grid gap-10 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:pt-16">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 backdrop-blur">
-                <ShieldCheck className="h-4 w-4 text-violet-300" />
-                India&apos;s trusted local directory
+          <section aria-label="Featured services" className="grid grid-cols-2 gap-3 py-5 sm:grid-cols-4 lg:grid-cols-[minmax(0,2.15fr)_repeat(4,minmax(0,0.48fr))]">
+            <Link href="/directory?q=exclusive+deals" className="relative col-span-2 flex min-h-[215px] items-center overflow-hidden rounded-2xl bg-[#21105e] bg-cover bg-center p-6 text-white shadow-sm sm:col-span-4 lg:col-span-1 lg:min-h-[240px] lg:p-8" style={{ backgroundImage: "linear-gradient(90deg,rgba(27,8,79,.98) 0%,rgba(36,12,92,.88) 39%,rgba(36,12,92,.05) 78%),url('/images/exlusive-deals-image.png')" }}>
+              <div className="relative z-10 max-w-[58%] sm:max-w-[48%]">
+                <span className="inline-flex items-center gap-1 rounded bg-white px-2 py-1 text-xs font-extrabold text-violet-700">Genesis Virtue</span>
+                <p className="mt-4 text-2xl font-extrabold leading-tight sm:text-3xl">Exclusive<br /><span className="text-amber-300">LOCAL DEALS</span></p>
+                <p className="mt-2 text-sm text-white/90 sm:text-base">Discover more value from businesses near you</p>
+                <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#ff5b16] px-4 py-2 text-sm font-bold">Explore deals <ArrowRight className="h-4 w-4" /></span>
               </div>
-
-              <h2 className="mt-5 max-w-xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-[56px]">
-                Find Trusted
-                <br />
-                Businesses{" "}
-                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-                  Near You
-                </span>
-              </h2>
-
-              <p className="mt-5 max-w-lg text-base leading-7 text-slate-200 sm:text-lg">
-                Discover, connect and grow with the best local businesses across India.
-              </p>
-
-              <div className="mt-8 overflow-hidden rounded-lg border border-white/12 bg-white/96 p-2 text-slate-900 shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur">
-                <form action="/directory" method="get" className="grid gap-2 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_160px]">
-                  <label className="flex h-16 items-center gap-3 rounded-lg px-4 hover:bg-slate-50/50">
-                    <Search className="h-5 w-5 text-slate-400" />
-                    <span className="flex min-w-0 flex-1 flex-col"><span className="text-[11px] font-medium text-slate-400">Business, service, or category</span><input name="q" defaultValue={params?.q || ''} placeholder={categoryItems.find(item => item.slug === categorySlug)?.name || 'What are you looking for?'} className="w-full bg-transparent text-sm font-medium text-slate-900 outline-none" /></span>
-                  </label>
-                  <label className="flex h-16 items-center gap-3 rounded-lg border-t border-slate-100 px-4 md:border-l md:border-t-0 hover:bg-slate-50/50">
-                    <MapPin className="h-5 w-5 text-slate-400" />
-                    <span className="flex min-w-0 flex-1 flex-col"><span className="text-[11px] font-medium text-slate-400">City or locality</span><input name="city" defaultValue={cityName || ''} placeholder="Anywhere" className="w-full bg-transparent text-sm font-medium text-slate-900 outline-none" /></span>
-                  </label>
-                  {categorySlug ? <input type="hidden" name="category" value={categorySlug} /> : null}
-                  <input type="hidden" name="limit" value={limit} />
-                  <button className="inline-flex h-14 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(99,102,241,0.32)] transition hover:scale-[1.02]">Search Now</button>
-                </form>
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-                <span className="font-semibold text-slate-200">Popular Searches:</span>
-                {categoryItems.slice(0, 7).map((item) => (
-                  <a
-                    key={item.slug || item.name}
-                    href={categoryListingPath(cityName || cityItems[0]?.name || "Delhi", item)}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-slate-100 backdrop-blur transition hover:border-violet-300/50 hover:bg-white/10"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Hero Stats Card */}
-            <div className="hidden items-end justify-end lg:flex">
-              <div className="w-full max-w-[360px] rounded-lg border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.22em] text-slate-300">
-                      Live Coverage
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold capitalize text-white">{cityName || 'India'}</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10">
-                    <Building2 className="h-6 w-6 text-violet-200" />
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {[
-                    { label: "Published listings", value: (pagination.totalItems || 0).toLocaleString(), icon: Building2 },
-                    { label: "Verified on this page", value: businesses.filter((business) => business.verified).length.toLocaleString(), icon: BadgeCheck },
-                    { label: "Reviews on this page", value: businesses.reduce((sum, business) => sum + Number(business.reviewCount || 0), 0).toLocaleString(), icon: Star },
-                    { label: "Cities covered", value: cityItems.length.toLocaleString(), icon: ShieldCheck },
-                  ].map(({ label, value, icon: Icon }) => (
-                    <div
-                      key={label}
-                      className="rounded-lg border border-white/10 bg-black/15 p-4 transition hover:bg-black/25"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-2xl font-semibold text-white">{value}</p>
-                          <p className="mt-1 text-xs text-slate-300">{label}</p>
-                        </div>
-                        <Icon className="h-5 w-5 text-violet-300" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+              <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map((dot) => <span key={dot} className={`h-2 w-2 rounded-full ${dot === 0 ? "bg-white" : "bg-white/50"}`} />)}</div>
+            </Link>
+            {promoCategories.map(({ title, subtitle, query, color, icon: Icon }) => (
+              <Link key={title} href={`/directory?q=${encodeURIComponent(query)}`} className={`group relative flex min-h-[140px] flex-col overflow-hidden rounded-2xl ${color} p-4 text-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-h-[170px] lg:min-h-[240px] lg:p-4`}>
+                <span className="relative z-10 text-sm font-extrabold leading-tight sm:text-base">{title}</span>
+                <span className="relative z-10 mt-2 max-w-[90px] text-xs leading-5 text-white/90">{subtitle}</span>
+                <Icon className="absolute -bottom-2 -right-2 h-20 w-20 text-white/30 transition group-hover:scale-110 sm:h-24 sm:w-24 lg:h-28 lg:w-28" strokeWidth={1.15} />
+                <span className="absolute bottom-3 left-3 flex h-8 w-8 items-center justify-center rounded-md bg-black/15"><ChevronRight className="h-5 w-5" /></span>
+              </Link>
+            ))}
+          </section>
+          <div className="flex flex-wrap items-end justify-between gap-3 py-3"><div><p className="text-xs text-slate-500">Home › {cityName || "India"} › {selectedCategory?.name || params?.q || "Businesses"}</p><h1 className="mt-1 text-xl font-semibold">{selectedCategory?.name || params?.q || "Local Businesses"} in {cityName || "India"}</h1></div><p className="text-xs text-slate-500">{(pagination.totalItems || businesses.length).toLocaleString()} listings</p></div>
+          <div className="flex gap-2 overflow-x-auto pb-3 text-xs">
+            {[{label:"Sort by",name:"sort",value:params?.sort||"relevance",options:[["relevance","Relevance"],["rating","Top Rated"],["newest","Newest"]]},{label:"Rating",name:"minimumRating",value:params?.minimumRating||"",options:[["","Any Rating"],["4","4+ Stars"],["3","3+ Stars"]]},{label:"Verified",name:"verified",value:params?.verified||"",options:[["","All Listings"],["true","Verified"]]}].map(filter=><form key={filter.name} action="/directory"><input type="hidden" name="q" value={params?.q||""}/><input type="hidden" name="city" value={cityName||""}/><input type="hidden" name="category" value={categorySlug||""}/><select aria-label={filter.label} name={filter.name} defaultValue={filter.value} className="min-w-max rounded-md border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700">{filter.options.map(([value,label])=><option key={value} value={value}>{filter.label}: {label}</option>)}</select><button className="sr-only">Apply</button></form>)}<Link href="/directory" className="min-w-max rounded-md border border-slate-200 bg-white px-3 py-2 font-medium">Clear filters</Link><UseMyLocationButton category={categorySlug} searchTerm={params?.q} /></div>
         </div>
       </section>
 
       {/* ========== DIRECTORY ========== */}
       <section className="bg-[#f5f7fc]">
         <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-          <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             {/* Filters */}
-            <aside className="rounded-lg border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+            <aside className="order-2 space-y-4 lg:order-2">
+              <div className="rounded-lg border border-blue-100 bg-blue-50 p-4"><h3 className="font-semibold text-slate-900">Need help finding {selectedCategory?.name || "a business"}?</h3><p className="mt-1 text-xs text-slate-600">Connect with trusted local businesses and get the right service.</p><Link href="/directory" className="mt-3 inline-flex rounded-full bg-[#0876ce] px-4 py-2 text-xs font-semibold text-white">Find the right business <ArrowRight className="ml-2 h-4 w-4" /></Link></div>
+              <div className="rounded-lg border border-slate-200 bg-white p-4"><h3 className="text-sm font-semibold text-slate-900">Popular categories</h3><div className="mt-3 space-y-2">{categoryItems.slice(0, 7).map(item=><Link key={item.slug} href={categoryListingPath(cityName || cityItems[0]?.name || "India", item)} className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs text-slate-700 last:border-0"><span>{item.name}</span><ArrowRight className="h-3 w-3 text-slate-400" /></Link>)}</div></div>
+              <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                 <h3 className="text-[15px] font-semibold text-slate-900">Filters</h3>
                 <Link href="/directory" className="text-xs font-semibold text-violet-600 transition hover:text-violet-700">Reset All</Link>
@@ -340,15 +175,21 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
                 <label className="block text-sm font-semibold text-slate-900">Locality<input name="locality" defaultValue={params?.locality || ''} placeholder="Any locality" className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal" /></label>
                 <label className="block text-sm font-semibold text-slate-900">State<input name="state" defaultValue={params?.state || ''} placeholder="Any state" className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal" /></label>
                 <label className="block text-sm font-semibold text-slate-900">Minimum rating<select name="minimumRating" defaultValue={params?.minimumRating || ''} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="">Any rating</option>{[4, 3, 2, 1].map(rating => <option key={rating} value={rating}>{rating}+ stars</option>)}</select></label>
+                {hasCoordinates ? <>
+                  <input type="hidden" name="lat" value={params.lat} /><input type="hidden" name="lng" value={params.lng} />
+                  <label className="block text-sm font-semibold text-slate-900">Distance<select name="radiusMeters" defaultValue={radiusMeters} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="1000">Within 1 km</option><option value="5000">Within 5 km</option><option value="10000">Within 10 km</option><option value="25000">Within 25 km</option><option value="50000">Within 50 km</option></select></label>
+                  <label className="block text-sm font-semibold text-slate-900">Availability<select name="openNow" defaultValue={params?.openNow || ""} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="">Any status</option><option value="true">Open now</option><option value="false">Closed now</option></select></label>
+                </> : <p className="text-xs text-slate-500">Use “Use my location” to filter by distance and open status.</p>}
                 <label className="block text-sm font-semibold text-slate-900">Verification<select name="verified" defaultValue={params?.verified || ''} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="">All published listings</option><option value="true">Verified only</option><option value="false">Not verified</option></select></label>
-                <label className="block text-sm font-semibold text-slate-900">Sort by<select name="sort" defaultValue={params?.sort || 'relevance'} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="relevance">Most relevant</option><option value="rating">Top rated</option><option value="newest">Newest</option></select></label>
+                <label className="block text-sm font-semibold text-slate-900">Sort by<select name="sort" defaultValue={params?.sort || (hasCoordinates ? 'distance' : 'relevance')} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal"><option value="relevance">Most relevant</option>{hasCoordinates ? <option value="distance">Nearest first</option> : null}<option value="rating">Top rated</option><option value="newest">Newest</option></select></label>
                 <input type="hidden" name="limit" value={limit} />
                 <button className="w-full rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white">Apply filters</button>
               </form>
+              </div>
             </aside>
 
             {/* Results */}
-            <div className="space-y-6">
+            <div className="order-1 min-w-0 space-y-4 lg:order-1">
               {/* Results Header */}
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:px-5">
                 <div>
@@ -364,7 +205,7 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
 
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <span>Sorted by: <strong className="font-semibold text-slate-700">{{ rating: 'Top rated', newest: 'Newest' }[params?.sort] || 'Most relevant'}</strong></span>
+                    <span>Sorted by: <strong className="font-semibold text-slate-700">{{ rating: 'Top rated', newest: 'Newest', distance: 'Nearest first' }[params?.sort] || 'Most relevant'}</strong></span>
                   </div>
 
                   <div className="flex items-center overflow-hidden rounded-lg border border-slate-200">
@@ -400,7 +241,7 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
                   <Sparkles className="h-4 w-4" />
                   Sponsored Businesses
                 </div>
-                <div className="grid gap-4 xl:grid-cols-3">
+                <div className="grid gap-3">
                   {sponsoredBusinesses.map((business) => (
                     <BusinessCard key={business.name} business={business} sponsored />
                   ))}
@@ -408,7 +249,7 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
               </section>
 
               {/* Business Grid */}
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              <div className="grid gap-3">
                   {regularBusinesses.map((business) => (
                   <BusinessCard key={business._id || business.slug || business.name} business={business} />
                 ))}

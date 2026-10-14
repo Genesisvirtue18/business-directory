@@ -2,15 +2,15 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  BriefcaseBusiness,
   Building2,
+  CarFront,
+  Coffee,
   Dumbbell,
   GraduationCap,
   Grid2X2,
-  Heart,
   HomeIcon,
-  Hospital,
   MapPin,
-  Menu,
   Plus,
   Quote,
   Rocket,
@@ -19,11 +19,13 @@ import {
   Sparkles,
   Star,
   Stethoscope,
-  Store,
-  Smile,
+  ShoppingBag,
   Utensils,
   Users,
-  Phone
+  Phone,
+  Wrench,
+  Hotel,
+  Landmark,
 } from "lucide-react";
 import {
   FaFacebookF,
@@ -32,16 +34,10 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import Link from "next/link";
+import NearbyCategoryLink from "@/components/NearbyCategoryLink";
+import BestNearYou from "@/components/BestNearYou";
 import { getBusinesses, getCategories } from "@/lib/api";
-import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
 import { toHomeBusiness } from "@/lib/directory-data";
-
-const navItems = [
-  { label: "Home", href: "/" }, { label: "Businesses", href: "/directory" },
-  { label: "Categories", href: "#categories" }, { label: "Cities", href: "/directory" },
-  { label: "Deals", href: "#deals" }, { label: "Blog", href: "#blog" },
-  { label: "Contact Us", href: "#contact" },
-];
 
 const steps = [
   { title: "Search", text: "Find businesses by category, location or name.", icon: Search },
@@ -99,6 +95,49 @@ const stats = [
   },
 ];
 
+const categoryIconMatchers = [
+  [/restaurant|food|dining|cafe|catering|bakery|pizza|hospitality/, Utensils],
+  [/doctor|medical|health|clinic|dent|pharmacy|hospital|vet/, Stethoscope],
+  [/beauty|salon|spa|cosmetic|makeup/, Sparkles],
+  [/education|school|college|university|training|tuition/, GraduationCap],
+  [/home|real-estate|property|interior|furniture|construction/, HomeIcon],
+  [/auto|car|vehicle|transport|taxi|bike|motor/, CarFront],
+  [/repair|plumb|electric|maintenance|service|mechanic/, Wrench],
+  [/shop|retail|store|market|grocery|fashion|shopping/, ShoppingBag],
+  [/gym|fitness|sport|yoga/, Dumbbell],
+  [/finance|bank|insurance|account|legal|law/, Landmark],
+  [/travel|tour|lodging|hotel|stay/, Hotel],
+  [/business|consult|office|professional|agency/, BriefcaseBusiness],
+  [/coffee|tea/, Coffee],
+];
+
+function iconForCategory(category) {
+  const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
+  return categoryIconMatchers.find(([pattern]) => pattern.test(key))?.[1] || Grid2X2;
+}
+
+const categoryImageMatchers = [
+  [/restaurant|food|dining|cafe|catering|bakery|pizza/, "photo-1517248135467-4c7edcad34c4"],
+  [/doctor|medical|health|clinic|dent|pharmacy|hospital|vet/, "photo-1576091160399-112ba8d25d1d"],
+  [/beauty|salon|spa|cosmetic|makeup/, "photo-1560066984-138dadb4c035"],
+  [/education|school|college|university|training|tuition/, "photo-1523050854058-8df90110c9f1"],
+  [/home|real-estate|property|interior|furniture|construction/, "photo-1600210492486-724fe5c67fb0"],
+  [/auto|car|vehicle|transport|taxi|bike|motor/, "photo-1486262715619-67b85e0b08d3"],
+  [/repair|plumb|electric|maintenance|service|mechanic/, "photo-1621905251918-48416bd8575a"],
+  [/shop|retail|store|market|grocery|fashion|shopping/, "photo-1441986300917-64674bd600d8"],
+  [/gym|fitness|sport|yoga/, "photo-1534438327276-14e5300c3a48"],
+  [/finance|bank|insurance|account|legal|law/, "photo-1486406146926-c627a92ad1ab"],
+  [/travel|tour|lodging|hotel|stay/, "photo-1566073771259-6a8506099945"],
+  [/business|consult|office|professional|agency/, "photo-1497366754035-f200968a6e72"],
+];
+
+function imageForCategory(category) {
+  if (category.image) return category.image;
+  const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
+  const photo = categoryImageMatchers.find(([pattern]) => pattern.test(key))?.[1] || "photo-1497366216548-37526070297c";
+  return `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=900&q=85`;
+}
+
 function AdBar() {
   return (
     <div className="mx-auto flex h-16 max-w-5xl items-center justify-center rounded border border-slate-200 bg-slate-50 text-sm text-slate-400 shadow-sm">
@@ -120,10 +159,23 @@ function Stars() {
 export default async function Home() {
   const [{ items: businessItems = [] }, { items: categoryItems = [] }] = await Promise.all([
     getBusinesses({ limit: 6 }),
-    getCategories({ limit: 10 }),
+    getCategories({ limit: 100 }),
   ]);
-  const categoryIcons = [Stethoscope, Smile, Sparkles, Hospital, HomeIcon, GraduationCap, Utensils, Plus, Dumbbell, Grid2X2];
-  const categories = categoryItems.map((category, index) => ({ id: category._id || category.id || `${category.name}-${index}`, slug: category.slug, label: category.name, icon: categoryIcons[index % categoryIcons.length] }));
+  const categories = categoryItems
+    .filter((category) => !category.parentCategory)
+    .map((category, index) => {
+      const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
+      return {
+      id: category._id || category.id || `${category.name}-${index}`,
+      slug: category.slug,
+      label: category.name,
+      description: category.description,
+      image: imageForCategory(category),
+      hasRelevantImage: Boolean(category.image || categoryImageMatchers.some(([pattern]) => pattern.test(key))),
+      icon: iconForCategory(category),
+      };
+    });
+  const imageCategories = categories.filter((category) => category.hasRelevantImage).slice(0, 4);
   const businesses = businessItems.map(toHomeBusiness);
   return (
     <main className="min-h-screen bg-white text-slate-950">
@@ -149,61 +201,31 @@ export default async function Home() {
     }}
   />
 
-        <header className="sticky top-0 z-50">
-          <div className="mx-auto mt-4 flex h-16 max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-6 backdrop-blur-xl">
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-lg font-black text-white shadow-lg">
-                G
-              </div>
-
-              <div className="leading-tight">
-                <h2 className="text-base font-extrabold text-white">
-                  Genesis Virtue
-                </h2>
-                <p className="text-[11px] text-slate-300">
-                  Business Directory
-                </p>
-              </div>
+        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
+          <div className="mx-auto flex min-h-[68px] max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-8">
+            <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[-1.5px] text-violet-700">
+              Genesis Virtue
             </Link>
-
-            {/* Desktop Menu */}
-            <nav className="hidden items-center gap-8 lg:flex">
-              {navItems.map(({ label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className={`relative text-sm font-semibold transition ${label === "Home"
-                    ? "text-white"
-                    : "text-slate-300 hover:text-white"
-                    }`}
-                >
-                  {label}
-
-                  {label === "Home" && (
-                    <span className="absolute -bottom-2 left-0 h-[2px] w-full rounded-full bg-violet-400" />
-                  )}
-                </a>
-              ))}
-            </nav>
-
-            {/* Actions */}
-            <div className="hidden items-center gap-3 lg:flex">
-              <Link href="/login" className="flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
-                <Plus size={16} />
-                Add Business
+            <form action="/directory" method="get" className="order-3 flex w-full max-w-xl items-center gap-2 sm:order-none sm:flex-1 sm:px-4">
+              <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3">
+                <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
+                <input name="city" placeholder="City" className="w-full bg-transparent text-sm outline-none" />
+              </label>
+              <label className="flex h-10 min-w-0 flex-[1.5] items-center gap-2 rounded-md border border-slate-300 bg-white px-3">
+                <input name="q" placeholder="Business or service" className="w-full bg-transparent text-sm outline-none" />
+                <button aria-label="Search" className="-mr-2 flex h-8 w-9 shrink-0 items-center justify-center rounded bg-violet-700 text-white hover:bg-violet-800">
+                  <Search className="h-4 w-4" />
+                </button>
+              </label>
+            </form>
+            <div className="flex items-center gap-2">
+              <Link href="/register" className="flex h-9 items-center gap-1 rounded border border-slate-300 px-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 sm:px-3">
+                <Plus className="h-3.5 w-3.5" />Add Your Business Now
               </Link>
-
-              <Link href="/login" className="flex h-10 items-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 text-sm font-bold text-white shadow-lg shadow-indigo-900/30 transition hover:scale-105">
+              <Link href="/login" className="flex h-9 items-center rounded bg-violet-700 px-3 text-xs font-semibold text-white hover:bg-violet-800 sm:px-4">
                 Login
               </Link>
             </div>
-
-            {/* Mobile */}
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white lg:hidden">
-              <Menu size={18} />
-            </button>
           </div>
         </header>
         <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-10 lg:grid-cols-[1fr_360px] lg:px-8 lg:pb-20 lg:pt-16">
@@ -220,37 +242,6 @@ export default async function Home() {
               Discover the best local businesses in India. Connect, review and grow with Genesis Virtue.
             </p>
 
-            <div className="mt-8 max-w-4xl rounded-2xl bg-white/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.15)] backdrop-blur">
-              <div className="grid items-center gap-2 md:grid-cols-[1fr_1fr_110px]">
-
-                <form action="/directory" method="get" id="home-search" className="contents">
-                <div className="flex h-14 items-center gap-3 rounded-xl px-4">
-                  <Search className="h-5 w-5 text-indigo-500" />
-                  <input
-                    type="text"
-                    name="q"
-                    placeholder="Search businesses..."
-                    className="w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-
-                <div className="flex h-14 items-center gap-3 border-t border-slate-100 px-4 md:border-l md:border-t-0">
-                  <MapPin className="h-5 w-5 text-indigo-500" />
-                  <input
-                    type="text"
-                    name="city"
-                    placeholder="City or location"
-                    className="w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-
-                <button type="submit" className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-sm font-semibold text-white transition hover:scale-105">
-                  Search
-                </button>
-                </form>
-
-              </div>
-            </div>
             <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold">
               <span>Popular Searches:</span>
               {["Dentist in Delhi", "Skin Clinic in Mumbai", "Restaurants in Bangalore", "Gyms in Pune"].map((item) => (
@@ -295,118 +286,79 @@ export default async function Home() {
         <AdBar />
       </section>
 
-  <section id="categories" className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
-
-  <div className="mb-8 text-center">
-    <h2 className="text-2xl font-semibold text-slate-900">
-      Browse Popular Categories
-    </h2>
-
-    <p className="mt-2 text-sm text-slate-500">
-      Find trusted businesses across various categories.
-    </p>
-  </div>
-
-  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-    {categories.map(({ id, slug, label, icon: Icon }) => (
-      <a
-        key={id}
-        href={slug ? categoryListingPath("Delhi", { slug, id }) : "/directory"}
-        className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 transition-all duration-300 hover:border-indigo-100 hover:shadow-lg"
-      >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-all group-hover:bg-indigo-600 group-hover:text-white">
-          <Icon className="h-5 w-5" />
-        </div>
-
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">
-            {label}
-          </h3>
-
-          <p className="text-xs text-slate-500">
-            Explore
-          </p>
-        </div>
-      </a>
-    ))}
-  </div>
-
-</section>
-
-      <section id="businesses" className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
+      <section id="categories" className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-3xl font-semibold text-slate-900">
-              Featured Businesses
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Discover trusted local businesses across India
-            </p>
+            <h2 className="text-2xl font-semibold text-slate-900">Browse Categories</h2>
+            <p className="mt-1 text-sm text-slate-500">Explore every main category in the directory.</p>
           </div>
-
-          <a
-            href="/directory"
-            className="hidden items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 md:flex"
-          >
-            View All
-            <ArrowRight className="h-4 w-4" />
-          </a>
+          <Link href="/directory" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-700">View directory <ArrowRight className="h-4 w-4" /></Link>
         </div>
+        <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-10">
+          {categories.map(({ id, slug, label, icon: Icon }) => (
+            <NearbyCategoryLink key={id} category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group flex min-w-0 flex-col items-center gap-1.5 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-white text-violet-700 transition group-hover:border-violet-300 group-hover:bg-violet-50 group-hover:shadow-sm">
+                <Icon className="h-7 w-7" strokeWidth={1.7} />
+              </span>
+              <span className="line-clamp-2 text-xs font-medium leading-tight text-slate-700 group-hover:text-violet-700">{label}</span>
+            </NearbyCategoryLink>
+          ))}
+        </div>
+      </section>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {businesses.map((business) => (
-            <article
-              key={business.name}
-              className="group rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-100 hover:shadow-lg"
-            >
-              <div className="flex gap-4">
-                {/* Image */}
-                <div
-                  className="h-24 w-24 shrink-0 rounded-xl bg-cover bg-center"
-                  style={{ backgroundImage: business.image ? `url("${business.image}")` : undefined }}
-                />
-
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between">
-                    <h3 className="truncate text-base font-semibold text-slate-900">
-                      {business.name}
-                    </h3>
-
-                    <button>
-                      <Heart className="h-4 w-4 text-slate-400 transition hover:text-red-500" />
-                    </button>
-                  </div>
-
-                  <div className="mt-1 inline-flex rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600">
-                    {business.category}
-                  </div>
-
-                  <p className="mt-2 flex items-center gap-1 text-xs text-slate-500">
-                    <MapPin className="h-3 w-3" />
-                    {business.city}
-                  </p>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-medium">
-                        {business.rating}
-                      </span>
-
-                      <span className="text-xs text-slate-400">
-                        ({business.reviews})
-                      </span>
-                    </div>
-
-                    <Link href={businessDetailPath(business)} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
-                      View
-                    </Link>
-                  </div>
-                </div>
-              </div>
+      {imageCategories.length > 0 && <section className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="mb-5">
+          <h2 className="text-2xl font-semibold text-slate-900">Explore by Image</h2>
+          <p className="mt-1 text-sm text-slate-500">A closer look at selected categories.</p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {imageCategories.map(({ id, slug, label, image }) => (
+            <article key={id} className="rounded-xl border border-slate-300 bg-white p-4">
+              <h3 className="mb-3 text-base font-semibold text-slate-900">{label}</h3>
+              <NearbyCategoryLink category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group relative block h-40 overflow-hidden rounded-lg bg-slate-100">
+                <img src={image} alt={label} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 text-sm font-semibold text-white">Browse {label}</span>
+                <ArrowRight className="absolute bottom-3 right-3 h-5 w-5 text-white transition group-hover:translate-x-1" />
+              </NearbyCategoryLink>
             </article>
           ))}
+        </div>
+      </section>}
+
+      <BestNearYou fallbackBusinesses={businesses} />
+
+      <section id="add-business" className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+        <div className="grid gap-8 overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-amber-50 p-6 shadow-sm sm:p-9 md:grid-cols-[1.3fr_0.7fr] md:items-center lg:p-10">
+          <div>
+            <span className="inline-flex rounded-full border border-violet-100 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-700">For local business owners</span>
+            <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-4xl">Help your next local customer find you.</h2>
+            <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">Show people what you do, where to find you, and how to get in touch. Create your business profile on Genesis Virtue.</p>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Link href="/register" className="inline-flex h-11 items-center gap-2 rounded-lg bg-violet-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-800">
+                <Plus className="h-4 w-4" />Add Your Business Now
+              </Link>
+              <Link href="/login" className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-violet-700">Already listed? Login</Link>
+            </div>
+          </div>
+          <div className="relative mx-auto w-full max-w-sm rounded-2xl border border-white bg-white p-5 shadow-lg shadow-violet-900/5">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-violet-100 text-violet-700"><Building2 className="h-5 w-5" /></span>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Your business profile</p>
+                <p className="mt-0.5 text-xs text-slate-500">Ready to be discovered</p>
+              </div>
+              <BadgeCheck className="ml-auto h-5 w-5 text-emerald-600" />
+            </div>
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
+              <MapPin className="h-4 w-4 text-violet-600" /> Local search · Your category · Your city
+            </div>
+            <div className="mt-3 flex gap-2" aria-hidden="true">
+              <span className="h-2 flex-1 rounded-full bg-violet-200" />
+              <span className="h-2 flex-1 rounded-full bg-fuchsia-200" />
+              <span className="h-2 flex-1 rounded-full bg-amber-200" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -783,18 +735,17 @@ export default async function Home() {
       <div className="flex gap-3">
 
         <Link
-          href="/login"
+          href="/register"
           className="inline-flex h-10 items-center rounded-xl bg-white px-5 text-sm font-semibold text-indigo-600"
         >
-          Add Business
+          Add Your Business Now
         </Link>
 
         <Link
-          href="/directory"
+          href="/login"
           className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-5 text-sm font-semibold text-white"
         >
-          Learn More
-          <ArrowRight className="h-4 w-4" />
+          Login
         </Link>
 
       </div>
@@ -803,6 +754,38 @@ export default async function Home() {
 
   </div>
 </section>
+
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+          <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+            One-stop for local businesses, services, and stores across India
+          </h2>
+          <p className="mt-4 max-w-6xl text-sm leading-6 text-slate-600">
+            Genesis Virtue helps you discover local businesses and services in one place. Explore categories, compare business details, ratings, and reviews, then contact the business that fits your needs. Business owners can create a listing to help more people find them.
+          </p>
+
+          <h3 className="mt-9 text-lg font-semibold text-slate-900">
+            Browse categories for everyday needs
+          </h3>
+          <div className="mt-5 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.slice(0, 8).map(({ id, slug, label, description, icon: Icon }) => (
+              <Link
+                key={id}
+                href={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"}
+                className="group"
+              >
+                <span className="flex items-center gap-2.5 font-semibold text-slate-800 group-hover:text-violet-700">
+                  <Icon className="h-5 w-5 shrink-0 text-slate-500 group-hover:text-violet-600" strokeWidth={1.7} />
+                  {label}
+                </span>
+                <span className="mt-2 block text-sm leading-6 text-slate-600">
+                  {description || `Find local ${label.toLowerCase()} businesses, view their details, and connect with the right provider.`}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <footer id="contact" className="relative bg-[#061531] text-white">
 
@@ -877,7 +860,7 @@ export default async function Home() {
             {section.links.map((link) => (
               <a
                 key={link}
-                href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/login", "Dashboard": "/business-owner", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/#contact", "Sitemap": "/" })[link] || "/directory")}
+                href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/register", "Dashboard": "/login", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/#contact", "Sitemap": "/" })[link] || "/directory")}
                 className="block text-sm text-slate-400 transition hover:text-white"
               >
                 {link}

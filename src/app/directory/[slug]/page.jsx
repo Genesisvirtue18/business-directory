@@ -2,6 +2,7 @@ import Image from "next/image";
 import {
   ArrowLeft,
   ArrowRight,
+  Bell,
   BadgeCheck,
   CalendarDays,
   ChevronDown,
@@ -12,6 +13,7 @@ import {
   MapPin,
   MessageSquare,
   Phone,
+  Search,
   Plus,
   Share2,
   ShieldCheck,
@@ -25,6 +27,7 @@ import {
 import Link from "next/link";
 import { getBusiness, getBusinesses } from "@/lib/api";
 import { businessDetailPath, toDirectoryBusiness } from "@/lib/directory-data";
+import { buildBusinessJsonLd, jsonLdString } from "@/lib/business-schema";
 
 function SparkIcon(props) {
   return (
@@ -97,6 +100,8 @@ export default async function BusinessDetailPage({ params }) {
     text: review.comment,
   }));
   const related = relatedItems.filter((item) => item.slug !== slug).map(toDirectoryBusiness);
+  const canonicalPath = businessDetailPath(business);
+  const businessSchema = buildBusinessJsonLd(business, canonicalPath);
   const address = [business.address?.addressLine1, business.address?.addressLine2, business.address?.landmark, business.address?.locality, business.address?.city, business.address?.state, business.address?.postalCode].filter(Boolean).join(", ");
   const workingHours = (business.workingHours || []).map((entry) => entry.isClosed ? `${entry.day}: Closed` : `${entry.day}: ${entry.opens} - ${entry.closes}`);
   const categoryName = business.category?.name || business.keywords?.[0] || "Business";
@@ -116,60 +121,41 @@ export default async function BusinessDetailPage({ params }) {
   const directionsUrl = business.location?.coordinates ? `https://www.google.com/maps/search/?api=1&query=${business.location.coordinates[1]},${business.location.coordinates[0]}` : undefined;
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(businessSchema) }} />
       {/* ========== HEADER ========== */}
-      <section className="bg-[#030818] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
-          <header className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl lg:h-20 lg:flex-nowrap lg:px-6">
-            <Link href="/directory" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-500 text-lg font-black shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
-                G
-              </div>
-              <div className="leading-tight">
-                <h1 className="text-[17px] font-semibold text-white lg:text-xl">
-                  Genesis Virtue
-                </h1>
-                <p className="text-[11px] text-slate-300 lg:text-xs">
-                  Business Directory
-                </p>
-              </div>
-            </Link>
-
-            <nav className="hidden flex-wrap items-center gap-5 xl:flex">
-              {["Home", "Businesses", "Categories", "Cities", "Deals", "Blog", "Contact Us"].map(
-                (item, index) => (
-                  <a
-                    key={item}
-                    href="#"
-                    className={[
-                      "text-sm font-medium transition",
-                      index === 0 ? "text-white" : "text-slate-300 hover:text-white",
-                    ].join(" ")}
-                  >
-                    {item}
-                  </a>
-                ),
-              )}
-            </nav>
-
-            <div className="flex flex-wrap items-center gap-3 lg:flex-nowrap">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add Business</span>
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(99,102,241,0.35)] hover:bg-violet-700"
-              >
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Login / Sign Up</span>
-              </button>
-            </div>
-          </header>
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white text-slate-900 shadow-sm">
+        <div className="mx-auto flex min-h-[76px] max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 lg:px-8">
+          <Link href="/directory" aria-label="Genesis Virtue home" className="shrink-0 text-[26px] font-extrabold tracking-[-1.5px]">
+            <span className="text-[#0876ce]">Genesis</span><span className="text-[#f47721]">Virtue</span>
+          </Link>
+          <nav className="hidden items-center gap-7 xl:flex">
+            <Link href="/directory" className="text-sm font-medium text-slate-700 hover:text-[#0876ce]">Businesses</Link>
+            <Link href="/directory" className="text-sm font-medium text-slate-700 hover:text-[#0876ce]">Categories</Link>
+            <Link href="/directory" className="text-sm font-medium text-slate-700 hover:text-[#0876ce]">Cities</Link>
+            <Link href="/directory" className="text-sm font-medium text-slate-700 hover:text-[#0876ce]">About</Link>
+          </nav>
+          <div className="flex items-center gap-3 sm:gap-5">
+            <Link href="/dashboard" className="hidden items-center gap-2 text-sm font-medium text-slate-700 hover:text-[#0876ce] sm:flex"><Plus className="h-4 w-4" />Free Listing</Link>
+            <button type="button" aria-label="Notifications" className="text-slate-700"><Bell className="h-5 w-5" /></button>
+            <Link href="/login" className="rounded-lg bg-[#0876ce] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Login / Sign Up</Link>
+          </div>
         </div>
-      </section>
+        <div className="border-t border-slate-100 bg-white">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-4 lg:px-8">
+            <p className="w-full text-xl font-semibold tracking-tight sm:text-2xl">Discover trusted <span className="text-[#0876ce]">local businesses</span></p>
+            <form action="/directory" className="flex w-full max-w-3xl flex-wrap gap-2 sm:flex-nowrap">
+              <label className="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-4 shadow-sm">
+                <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
+                <input name="city" defaultValue={business.address?.city || ""} placeholder="City or location" className="w-full bg-transparent text-sm outline-none" />
+              </label>
+              <label className="flex h-12 min-w-0 flex-[2] items-center gap-2 rounded-lg border border-slate-300 px-4 shadow-sm">
+                <input name="q" defaultValue={categoryName} placeholder="Search businesses and services" className="w-full bg-transparent text-sm outline-none" />
+                <button aria-label="Search businesses" className="flex h-9 w-10 shrink-0 items-center justify-center rounded-md bg-[#f47721] text-white"><Search className="h-5 w-5" /></button>
+              </label>
+            </form>
+          </div>
+        </div>
+      </header>
 
       {/* ========== MAIN CONTENT ========== */}
       <div className="mx-auto max-w-7xl px-4 py-5 lg:px-8">

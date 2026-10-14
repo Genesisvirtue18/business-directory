@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, LockKeyhole, Mail } from "lucide-react";
 
-export default function LoginPage() {
+export default function LoginPage({ initialRegistering = false }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(initialRegistering);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,7 +51,7 @@ export default function LoginPage() {
           {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
           <button disabled={submitting} className="h-12 w-full rounded-xl bg-violet-700 font-bold text-white shadow-lg shadow-violet-200 hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-60">{submitting ? "Signing in…" : "Sign in"}</button>
         </form>
-        <div className="mt-6 text-center text-sm text-slate-500">{isRegistering ? "Already have an account?" : "New business owner?"} <button type="button" onClick={() => { setIsRegistering(!isRegistering); setError(""); }} className="font-semibold text-violet-700 hover:underline">{isRegistering ? "Sign in" : "Register"}</button></div>
+        <div className="mt-6 text-center text-sm text-slate-500">{isRegistering ? "Already have an account?" : "New business owner?"} <button type="button" onClick={() => { router.replace(isRegistering ? "/login" : "/register"); setIsRegistering(!isRegistering); setError(""); }} className="font-semibold text-violet-700 hover:underline">{isRegistering ? "Sign in" : "Register"}</button></div>
         {isRegistering && <p className="mt-3 text-center text-xs text-slate-500">New accounts are automatically registered as Business Owners.</p>}
       </section>
     </main>

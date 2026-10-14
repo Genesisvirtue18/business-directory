@@ -4,7 +4,8 @@ async function request(path, query = {}) {
   const params = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => { if (value !== undefined && value !== null && value !== "") params.set(key, value); });
   try {
-    const response = await fetch(`${baseUrl}${path}${params.size ? `?${params}` : ""}`, { next: { revalidate: 60 } });
+    const fetchOptions = query.lat !== undefined ? { cache: "no-store" } : { next: { revalidate: 60 } };
+    const response = await fetch(`${baseUrl}${path}${params.size ? `?${params}` : ""}`, { ...fetchOptions, signal: AbortSignal.timeout(8000) });
     if (!response.ok) return {};
     const body = await response.json();
     return body.data || {};
