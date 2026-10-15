@@ -28,7 +28,7 @@ export async function generateMetadata({ params, searchParams }) {
   const cityName = displayWords(city);
   return {
     title: `${categoryName} in ${cityName} | Genesis Virtue Business Directory`,
-    description: `Find trusted ${categoryName.toLowerCase()} in ${cityName}. Compare local businesses, ratings, reviews and contact details.`,
+    description: `Find trusted ${categoryName.toLowerCase()} in ${cityName}. Compare local businesses and contact details.`,
     alternates: category ? { canonical: absoluteSiteUrl(categoryListingPath(cityName, category)) } : undefined,
     ...(!category || hasCoordinates ? { robots: { index: false, follow: Boolean(category) } } : {}),
   };
@@ -38,7 +38,7 @@ export default async function SeoDirectoryRoute({ params, searchParams }) {
   const { city, term, entry } = await params;
   const termSlug = term.toLowerCase();
   if (entry.endsWith("_BZDET")) {
-    return BusinessDetailPage({ params: Promise.resolve({ slug: termSlug }) });
+    return <BusinessDetailPage params={Promise.resolve({ slug: termSlug })} />;
   }
   if (!entry.startsWith("nct-")) return <main className="p-10 text-center">Page not found.</main>;
   return <DirectoryPage searchParams={searchParams} routeCity={city} routeCategory={termSlug} />;

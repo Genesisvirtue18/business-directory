@@ -16,14 +16,39 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  /* Body / UI: Inter keeps dense listings and controls easy to scan.
+     Headings + key numbers: Space Grotesk adds a modern display voice.
+     Devanagari provides coverage for Hindi / Marathi text. */
+  --font-sans: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-headline-sm: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-headline-md: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-headline-lg: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-headline-xl: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-headline-xl-mobile: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-kpi-number: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-body-sm: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-body-md: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-body-lg: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-label-sm: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-label-md: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-caption: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Every heading picks up the display face without repeating a utility class on each one. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-space-grotesk), var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
 }
 
 .material-symbols-outlined {

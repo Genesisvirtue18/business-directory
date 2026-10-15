@@ -1,0 +1,140 @@
+
+> business-directory@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:65522
+- Network:       http://192.168.29.67:65522
+✓ Ready in 5.4s
+
+○ Compiling / ...
+ GET / 200 in 18.1s (next.js: 13.6s, application-code: 4.5s)
+ GET / 200 in 1776ms (next.js: 34ms, application-code: 1742ms)
+ GET / 200 in 930ms (next.js: 24ms, application-code: 906ms)
+ GET / 200 in 2.4s (next.js: 303ms, application-code: 2.1s)
+ GET /admin 200 in 635ms (next.js: 253ms, application-code: 382ms)
+ GET / 200 in 610ms (next.js: 11ms, application-code: 599ms)
+ GET /directory 200 in 10.6s (next.js: 181ms, application-code: 10.4s)
+ GET /[https:/images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80) 200 in 3.6s (next.js: 3.2s, application-code: 390ms)
+ GET / 200 in 3.2s (next.js: 47ms, application-code: 3.1s)
+ GET /[https:/images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80) 200 in 912ms (next.js: 133ms, application-code: 779ms)
+ GET /register 200 in 340ms (next.js: 185ms, application-code: 155ms)
+ GET / 200 in 3.2s (next.js: 29ms, application-code: 3.2s)
+✓ Finished filesystem cache database compaction in 10.8s
+ GET /[https:/images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80) 200 in 354ms (next.js: 52ms, application-code: 302ms)
+ GET / 200 in 1721ms (next.js: 564ms, application-code: 1157ms)
+ GET /[https:/images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80) 200 in 738ms (next.js: 106ms, application-code: 632ms)
+ GET /directory 200 in 8.8s (next.js: 27ms, application-code: 8.8s)
+ GET /[https:/images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80) 200 in 278ms (next.js: 43ms, application-code: 235ms)
+⨯ ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+[31m[1m>[0m [90m1 |[0m ﻿[36mimport[0m [33mBusinessDetailPage[0m [36mfrom[0m [32m"@/app/directory/[slug]/page"[0m;
+  [90m  |[0m                                                             [31m[1m^[0m
+[31m[1m>[0m [90m2 |[0m [36mimport[0m [33mDirectoryPage[0m [36mfrom[0m [32m"@/app/directory/page"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mimport[0m { getCategories, getBusiness } [36mfrom[0m [32m"@/lib/api"[0m;
+  [90m4 |[0m [36mimport[0m { absoluteSiteUrl } [36mfrom[0m [32m"@/lib/business-schema"[0m;
+  [90m5 |[0m [36mimport[0m { businessDetailPath, categoryListingPath } [36mfrom[0m [32m"@/lib/directory-data"[0m;
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+[31m[1m>[0m [90m1 |[0m ﻿[36mimport[0m [33mBusinessDetailPage[0m [36mfrom[0m [32m"@/app/directory/[slug]/page"[0m;
+  [90m  |[0m                                                             [31m[1m^[0m
+[31m[1m>[0m [90m2 |[0m [36mimport[0m [33mDirectoryPage[0m [36mfrom[0m [32m"@/app/directory/page"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mimport[0m { getCategories, getBusiness } [36mfrom[0m [32m"@/lib/api"[0m;
+  [90m4 |[0m [36mimport[0m { absoluteSiteUrl } [36mfrom[0m [32m"@/lib/business-schema"[0m;
+  [90m5 |[0m [36mimport[0m { businessDetailPath, categoryListingPath } [36mfrom[0m [32m"@/lib/directory-data"[0m;
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET /directory 404 in 4.3s (next.js: 2.3s, application-code: 1982ms)
+ GET /directory 500 in 3.6s (next.js: 2.5s, application-code: 1069ms)
+ GET /directory 500 in 3.8s (next.js: 2.8s, application-code: 1014ms)
+ GET /directory 500 in 116ms (next.js: 46ms, application-code: 70ms)
+ GET /directory 500 in 102ms (next.js: 47ms, application-code: 54ms)
+[browser] Uncaught Error: ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+> 1 | ﻿import BusinessDetailPage from "@/app/directory/[slug]/page";
+    |                                                             ^
+> 2 | import DirectoryPage from "@/app/directory/page";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | import { getCategories, getBusiness } from "@/lib/api";
+  4 | import { absoluteSiteUrl } from "@/lib/business-schema";
+  5 | import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./src/app/[city]/[term]/[entry]/page.jsx:1:64)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./src/app/[city]/[term]/[entry]/page.jsx:1:64)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+✓ Compiled in 2.3s
+ GET /directory 200 in 6.5s (next.js: 5.0s, application-code: 1508ms)
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/shared/lib/router/router.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[browser] ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+> 1 | ﻿import BusinessDetailPage from "@/app/directory/[slug]/page";
+    |                                                             ^
+> 2 | import DirectoryPage from "@/app/directory/page";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | import { getCategories, getBusiness } from "@/lib/api";
+  4 | import { absoluteSiteUrl } from "@/lib/business-schema";
+  5 | import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+    at processMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2835:28)
+    at <unknown> (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2680:13)
+    at WebSocket.handleMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2325:17) (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+[browser] ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+> 1 | ﻿import BusinessDetailPage from "@/app/directory/[slug]/page";
+    |                                                             ^
+> 2 | import DirectoryPage from "@/app/directory/page";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | import { getCategories, getBusiness } from "@/lib/api";
+  4 | import { absoluteSiteUrl } from "@/lib/business-schema";
+  5 | import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+    at processMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2835:28)
+    at <unknown> (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2680:13)
+    at WebSocket.handleMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2325:17) (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+[browser] ./src/app/[city]/[term]/[entry]/page.jsx:1:64
+Module not found: Can't resolve '@/app/directory/page'
+> 1 | ﻿import BusinessDetailPage from "@/app/directory/[slug]/page";
+    |                                                             ^
+> 2 | import DirectoryPage from "@/app/directory/page";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 | import { getCategories, getBusiness } from "@/lib/api";
+  4 | import { absoluteSiteUrl } from "@/lib/business-schema";
+  5 | import { businessDetailPath, categoryListingPath } from "@/lib/directory-data";
+
+Import map: aliased to relative './src/app/directory/page' inside of [project]/
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+    at processMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2835:28)
+    at <unknown> (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2680:13)
+    at WebSocket.handleMessage (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2325:17) (file://D:/Business Directory/Client/.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js:2774:21)
+[?25h

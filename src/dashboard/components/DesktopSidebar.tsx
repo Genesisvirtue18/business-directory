@@ -12,7 +12,6 @@ interface DesktopSidebarProps {
 const ownerItems: { tab: OwnerTab; label: string; icon: string }[] = [
   { tab: 'business', label: 'My business', icon: 'storefront' },
   { tab: 'leads', label: 'Leads', icon: 'contact_mail' },
-  { tab: 'reviews', label: 'Reviews', icon: 'rate_review' },
   { tab: 'analytics', label: 'Analytics', icon: 'analytics' },
   { tab: 'settings', label: 'Settings', icon: 'settings' },
 ];
@@ -21,7 +20,6 @@ const adminItems: { tab: AdminTab; label: string; icon: string }[] = [
   { tab: 'overview', label: 'Overview', icon: 'dashboard' },
   { tab: 'businesses', label: 'Businesses', icon: 'storefront' },
   { tab: 'leads', label: 'Leads', icon: 'contact_mail' },
-  { tab: 'reviews', label: 'Reviews', icon: 'rate_review' },
   { tab: 'more', label: 'Categories', icon: 'category' },
 ];
 

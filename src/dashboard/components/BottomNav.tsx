@@ -62,23 +62,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           <span className="text-[10px] mt-0.5">Leads</span>
         </button>
 
-        {/* Tab 3: Reviews */}
-        <button
-          onClick={() => onSelectOwnerTab('reviews')}
-          className={`flex flex-col items-center justify-center py-1 px-3.5 rounded-full transition-all duration-150 cursor-pointer ${
-            ownerTab === 'reviews'
-              ? 'bg-[#ebdcff] text-[#260059] font-bold'
-              : 'text-[#4a4455] hover:text-[#5300b7]'
-          }`}
-        >
-          <span
-            className="material-symbols-outlined text-xl"
-            style={ownerTab === 'reviews' ? { fontVariationSettings: "'FILL' 1" } : undefined}
-          >
-            rate_review
-          </span>
-          <span className="text-[10px] mt-0.5">Reviews</span>
-        </button>
 
         {/* Tab 4: Analytics */}
         <button
@@ -176,23 +159,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         <span className="text-[10px] mt-0.5">Leads</span>
       </button>
 
-      {/* Tab 4: Reviews */}
-      <button
-        onClick={() => onSelectAdminTab('reviews')}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-full transition-all duration-150 cursor-pointer ${
-          adminTab === 'reviews'
-            ? 'bg-[#ebdcff] text-[#260059] font-bold'
-            : 'text-[#4a4455] hover:text-[#5300b7]'
-        }`}
-      >
-        <span
-          className="material-symbols-outlined text-[20px]"
-          style={adminTab === 'reviews' ? { fontVariationSettings: "'FILL' 1" } : undefined}
-        >
-          rate_review
-        </span>
-        <span className="text-[10px] mt-0.5">Reviews</span>
-      </button>
 
       {/* Tab 5: More */}
       <button

@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, MapPin, Star } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { getBusinesses } from "@/lib/api";
 import { businessDetailPath, toHomeBusiness } from "@/lib/directory-data";
 import { getSavedLocation, requestUserLocation, USER_LOCATION_EVENT } from "@/lib/user-location";
 
 export default function BestNearYou({ fallbackBusinesses = [] }) {
   const [businesses, setBusinesses] = useState(fallbackBusinesses.slice(0, 3));
-  const [message, setMessage] = useState("Turn on location to find the highest-rated places around you.");
+  const [message, setMessage] = useState("Turn on location to find local businesses around you.");
   const [loading, setLoading] = useState(false);
 
   async function loadNearby(location) {
     if (!location) return;
     setLoading(true);
-    const result = await getBusinesses({ lat: location.lat, lng: location.lng, sort: "rating", limit: 3 });
+    const result = await getBusinesses({ lat: location.lat, lng: location.lng, sort: "relevance", limit: 3 });
     const nearby = (result.items || []).map(toHomeBusiness);
     setBusinesses(nearby);
-    setMessage(nearby.length ? "Top-rated businesses near your current location." : "No businesses found nearby yet. Try the full directory.");
+    setMessage(nearby.length ? "Businesses near your current location." : "No businesses found nearby yet. Try the full directory.");
     setLoading(false);
   }
 
@@ -70,7 +70,6 @@ export default function BestNearYou({ fallbackBusinesses = [] }) {
             <div className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-semibold text-slate-900">{business.name}</h3>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700"><Star className="h-3.5 w-3.5 fill-current" />{business.rating}</span>
               </div>
               <p className="mt-1 text-sm text-slate-500">{business.category}</p>
               <p className="mt-3 flex items-center gap-1 text-xs text-slate-500"><MapPin className="h-3.5 w-3.5" />{business.city}</p>

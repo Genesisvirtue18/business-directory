@@ -30,8 +30,6 @@ export function toDirectoryBusiness(business, index = 0) {
   return {
     ...business,
     category: business.category?.name || business.keywords?.[0] || "Business",
-    rating: Number(business.averageRating || 0).toFixed(1),
-    reviews: `${business.reviewCount || 0} Reviews`,
     area: business.address?.locality || business.address?.city || "Location not provided",
     status: business.listingStatus === "published" ? "Published" : "Pending review",
     closesAt: closingHour ? `Closes ${closingHour}` : undefined,
@@ -48,8 +46,6 @@ export function toHomeBusiness(business) {
     ...business,
     category: business.category?.name || business.keywords?.[0] || "Business",
     city: business.address?.city || "Location not provided",
-    rating: Number(business.averageRating || 0).toFixed(1),
-    reviews: business.reviewCount || 0,
     image: business.images?.[0] || business.logo,
   };
 }

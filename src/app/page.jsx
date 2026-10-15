@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
@@ -12,16 +11,13 @@ import {
   HomeIcon,
   MapPin,
   Plus,
-  Quote,
   Rocket,
   Search,
   ShieldCheck,
   Sparkles,
-  Star,
   Stethoscope,
   ShoppingBag,
   Utensils,
-  Users,
   Phone,
   Wrench,
   Hotel,
@@ -36,64 +32,8 @@ import {
 import Link from "next/link";
 import NearbyCategoryLink from "@/components/NearbyCategoryLink";
 import BestNearYou from "@/components/BestNearYou";
-import { getBusinesses, getCategories } from "@/lib/api";
-import { toHomeBusiness } from "@/lib/directory-data";
-
-const steps = [
-  { title: "Search", text: "Find businesses by category, location or name.", icon: Search },
-  { title: "Explore", text: "View details, photos, services, reviews and ratings.", icon: Building2 },
-  { title: "Connect", text: "Contact, visit and share your experience with others.", icon: Star },
-];
-
-const testimonials = [
-  { name: "Priya Sharma", city: "Delhi", text: "Genesis Virtue helped me find the best skin clinic near me. The reviews were so helpful!" },
-  { name: "Rohit Verma", city: "Mumbai", text: "As a business owner, this platform brings us genuine leads and more visibility." },
-  { name: "Ankita Patel", city: "Bangalore", text: "I love how easy it is to find trusted businesses in my city." },
-];
-
-const blogs = [
-  {
-    tag: "Business Tips",
-    title: "10 Proven Ways to Grow Your Local Business in 2024",
-    date: "May 20, 2024",
-    image: "url('https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?auto=format&fit=crop&w=800&q=80')",
-  },
-  {
-    tag: "Reviews",
-    title: "Why Customer Reviews Matter More Than Ever",
-    date: "May 15, 2024",
-    image: "url('https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=800&q=80')",
-  },
-  {
-    tag: "SEO",
-    title: "How to Improve Local SEO and Rank Higher in Search",
-    date: "May 10, 2024",
-    image: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80')",
-  },
-];
-
-const stats = [
-  {
-    value: "10,000+",
-    label: "Businesses Listed",
-    icon: Building2,
-  },
-  {
-    value: "50,000+",
-    label: "Happy Customers",
-    icon: Users,
-  },
-  {
-    value: "25,000+",
-    label: "Reviews",
-    icon: Star,
-  },
-  {
-    value: "200+",
-    label: "Cities Covered",
-    icon: MapPin,
-  },
-];
+import { getBusinesses, getCategories, getCities } from "@/lib/api";
+import { businessDetailPath, toHomeBusiness } from "@/lib/directory-data";
 
 const categoryIconMatchers = [
   [/restaurant|food|dining|cafe|catering|bakery|pizza|hospitality/, Utensils],
@@ -138,68 +78,40 @@ function imageForCategory(category) {
   return `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=900&q=85`;
 }
 
-function AdBar() {
-  return (
-    <div className="mx-auto flex h-16 max-w-5xl items-center justify-center rounded border border-slate-200 bg-slate-50 text-sm text-slate-400 shadow-sm">
-      Ads by Google
-    </div>
-  );
-}
-
-function Stars() {
-  return (
-    <span className="inline-flex items-center gap-0.5 text-amber-400">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <Star key={index} className="h-3.5 w-3.5 fill-current" />
-      ))}
-    </span>
-  );
-}
-
 export default async function Home() {
-  const [{ items: businessItems = [] }, { items: categoryItems = [] }] = await Promise.all([
+  const [{ items: businessItems = [], pagination = {} }, { items: categoryItems = [] }, { pagination: cityPagination = {} }, { pagination: verifiedPagination = {} }] = await Promise.all([
     getBusinesses({ limit: 6 }),
     getCategories({ limit: 100 }),
+    getCities({ limit: 100 }),
+    getBusinesses({ verified: true, limit: 1 }),
   ]);
   const categories = categoryItems
     .filter((category) => !category.parentCategory)
     .map((category, index) => {
-      const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
       return {
       id: category._id || category.id || `${category.name}-${index}`,
       slug: category.slug,
       label: category.name,
       description: category.description,
       image: imageForCategory(category),
-      hasRelevantImage: Boolean(category.image || categoryImageMatchers.some(([pattern]) => pattern.test(key))),
       icon: iconForCategory(category),
       };
     });
-  const imageCategories = categories.filter((category) => category.hasRelevantImage).slice(0, 4);
+  const featuredCategories = categories.slice(0, 12);
   const businesses = businessItems.map(toHomeBusiness);
+  const popularCategories = categories.slice(0, 6);
+  const stats = [
+    { value: (pagination.totalItems || 0).toLocaleString(), label: "Businesses Listed", icon: Building2 },
+    { value: (verifiedPagination.totalItems || 0).toLocaleString(), label: "Verified Businesses", icon: BadgeCheck },
+    { value: (cityPagination.totalItems || 0).toLocaleString(), label: "Cities Available", icon: MapPin },
+  ];
   return (
     <main className="min-h-screen bg-white text-slate-950">
-    <section className="relative overflow-hidden">
-
-  {/* Video Background */}
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 h-full w-full object-cover"
-  >
-    <source src="/images/hero-video.mp4" type="video/mp4" />
-  </video>
-
-  {/* Gradient Overlay */}
-  <div
-    className="absolute inset-0"
-    style={{
-     background:
-"linear-gradient(90deg, rgba(2,11,45,.75) 0%, rgba(2,11,45,.55) 40%, rgba(2,11,45,.15) 100%)",
-    }}
-  />
+    <section className="relative overflow-hidden bg-[#071632]">
+      <video autoPlay muted loop playsInline preload="metadata" poster="/images/hero-bg.png" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover">
+        <source src="/images/hero-video.mp4" type="video/mp4" />
+      </video>
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#040d26]/85 via-[#040d26]/60 to-[#040d26]/25" />
 
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
           <div className="mx-auto flex min-h-[68px] max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-8">
@@ -228,103 +140,34 @@ export default async function Home() {
             </div>
           </div>
         </header>
-        <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-10 lg:grid-cols-[1fr_360px] lg:px-8 lg:pb-20 lg:pt-16">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-200 ring-1 ring-white/15">
-              <ShieldCheck className="h-4 w-4 text-indigo-300" />
-              India&apos;s Trusted Business Directory
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-9 lg:px-8 lg:pb-10 lg:pt-12">
+          <div className="grid items-center gap-8 lg:grid-cols-[1fr_360px] lg:gap-12">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-100 ring-1 ring-white/15"><ShieldCheck className="h-4 w-4 text-violet-300" />India&apos;s local business directory</span>
+              <h1 className="mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Find Trusted Businesses.<br /><span className="text-violet-300">Grow Together.</span></h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-200 sm:text-base">Discover local services and connect with businesses across India.</p>
             </div>
-            <h1 className="max-w-2xl text-4xl text-slate-100 font-semibold leading-tight sm:text-5xl">
-              Find Trusted Businesses. Grow{" "}
-              <span className="text-violet-400">Together.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-lg font-medium leading-8 text-slate-100">
-              Discover the best local businesses in India. Connect, review and grow with Genesis Virtue.
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold">
-              <span>Popular Searches:</span>
-              {["Dentist in Delhi", "Skin Clinic in Mumbai", "Restaurants in Bangalore", "Gyms in Pune"].map((item) => (
-                <a key={item} className="rounded-full border border-white/25 px-4 py-2 text-slate-200" href={`/directory?q=${encodeURIComponent(item.split(' in ')[0])}&city=${encodeURIComponent(item.split(' in ')[1] || '')}`}>
-                  {item}
-                </a>
-              ))}
-            </div>
+            
           </div>
-
-          <aside className="self-end max-w-sm rounded-2xl border border-white/20 bg-white/90 p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="flex items-start gap-4">
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg">
-                <BadgeCheck className="h-5 w-5" />
-              </div>
-
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">
-                  Verified Businesses
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Genuine reviews, verified listings and trusted information.
-                </p>
-
-                <a
-                  href="/directory?verified=true"
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-violet-600"
-                >
-                  Learn More
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-
-            </div>
-          </aside>
+          <form action="/directory" method="get" className="mt-8 flex max-w-5xl flex-col gap-2 rounded-xl bg-white p-2 shadow-2xl sm:flex-row">
+            <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-lg px-3 text-slate-400"><MapPin className="h-5 w-5 shrink-0" /><input name="city" placeholder="Enter city or location" className="w-full text-sm text-slate-900 outline-none" /></label>
+            <label className="flex h-12 min-w-0 flex-[1.5] items-center gap-3 rounded-lg border-t border-slate-100 px-3 text-slate-400 sm:border-l sm:border-t-0"><Search className="h-5 w-5 shrink-0" /><input name="q" placeholder="Business or service" className="w-full text-sm text-slate-900 outline-none" /></label>
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-violet-700 px-6 text-sm font-semibold text-white hover:bg-violet-800"><Search className="h-4 w-4" />Search Now</button>
+          </form>
+          {popularCategories.length ? <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className="mr-1 font-semibold text-white">Popular categories</span>{popularCategories.map(({ id, slug, label }) => <Link key={id} href={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5 text-slate-100 transition hover:bg-white/15">{label}</Link>)}</div> : null}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-5 lg:px-8">
-        <AdBar />
+      <section className="mx-auto grid max-w-7xl grid-cols-3 divide-x divide-slate-200 border-b border-slate-100 px-5 py-5 lg:px-8">
+        {stats.map(({ value, label, icon: Icon }) => <div key={label} className="flex items-center justify-center gap-2 px-2 py-2 sm:gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><Icon className="h-4 w-4" /></span><span><span className="block text-base font-bold text-slate-900 sm:text-lg">{value}</span><span className="text-[10px] text-slate-500 sm:text-xs">{label}</span></span></div>)}
       </section>
 
-      <section id="categories" className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-900">Browse Categories</h2>
-            <p className="mt-1 text-sm text-slate-500">Explore every main category in the directory.</p>
-          </div>
-          <Link href="/directory" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-700">View directory <ArrowRight className="h-4 w-4" /></Link>
-        </div>
-        <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-10">
-          {categories.map(({ id, slug, label, icon: Icon }) => (
-            <NearbyCategoryLink key={id} category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group flex min-w-0 flex-col items-center gap-1.5 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-white text-violet-700 transition group-hover:border-violet-300 group-hover:bg-violet-50 group-hover:shadow-sm">
-                <Icon className="h-7 w-7" strokeWidth={1.7} />
-              </span>
-              <span className="line-clamp-2 text-xs font-medium leading-tight text-slate-700 group-hover:text-violet-700">{label}</span>
-            </NearbyCategoryLink>
-          ))}
-        </div>
+      <section id="categories" className="mx-auto max-w-7xl px-5 py-9 lg:px-8">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-semibold text-slate-900">Discover Local Specialties</h2><p className="mt-1 text-sm text-slate-500">Browse businesses by category.</p></div><Link href="/directory" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-700">All categories <ArrowRight className="h-4 w-4" /></Link></div>
+        {featuredCategories.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+          {featuredCategories.map(({ id, slug, label, image, icon: Icon }) => <NearbyCategoryLink key={id} category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group relative h-36 overflow-hidden rounded-xl bg-slate-200 sm:h-40"><img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /><span className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" /><span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-violet-700"><Icon className="h-5 w-5" /></span><span className="absolute bottom-3 left-3 right-3 line-clamp-2 text-sm font-semibold text-white">{label}</span></NearbyCategoryLink>)}
+        </div> : <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">Categories will appear here when they are available.</p>}
       </section>
-
-      {imageCategories.length > 0 && <section className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-        <div className="mb-5">
-          <h2 className="text-2xl font-semibold text-slate-900">Explore by Image</h2>
-          <p className="mt-1 text-sm text-slate-500">A closer look at selected categories.</p>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          {imageCategories.map(({ id, slug, label, image }) => (
-            <article key={id} className="rounded-xl border border-slate-300 bg-white p-4">
-              <h3 className="mb-3 text-base font-semibold text-slate-900">{label}</h3>
-              <NearbyCategoryLink category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group relative block h-40 overflow-hidden rounded-lg bg-slate-100">
-                <img src={image} alt={label} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-                <span className="absolute bottom-3 left-3 text-sm font-semibold text-white">Browse {label}</span>
-                <ArrowRight className="absolute bottom-3 right-3 h-5 w-5 text-white transition group-hover:translate-x-1" />
-              </NearbyCategoryLink>
-            </article>
-          ))}
-        </div>
-      </section>}
 
       <BestNearYou fallbackBusinesses={businesses} />
 
@@ -362,50 +205,22 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-[#071737] via-[#1E1B4B] to-[#312E81] p-8 shadow-2xl">
-
-          <div className="mb-10 text-center">
-            <h2 className="text-3xl font-semibold text-white">
-              Trusted Across India
-            </h2>
-
-            <p className="mt-2 text-sm text-indigo-100">
-              Connecting customers with verified businesses every day
-            </p>
+      <section className="mx-auto max-w-[1800px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#071737] via-[#191b4b] to-[#342d82] px-5 py-8 shadow-[0_24px_65px_rgba(15,23,42,0.16)] sm:px-8 sm:py-10 lg:px-12">
+          <div className="mb-7 text-center sm:mb-9">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-200">Genesis Virtue</span>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl">Trusted Across India</h2>
+            <p className="mt-2 text-sm text-indigo-100 sm:text-base">Connecting customers with verified businesses every day</p>
           </div>
-
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-  {stats.map(({ value, label, icon: Icon }) => (
-    <div
-      key={label}
-      className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/15"
-    >
-      <div className="flex items-center justify-between">
-        
-        <div>
-          <h3 className="text-3xl font-semibold text-white">
-            {value}
-          </h3>
-
-          <p className="mt-1 text-sm text-indigo-100">
-            {label}
-          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {stats.map(({ value, label, icon: Icon }) => (
+              <div key={label} className="group flex min-h-32 items-center justify-between gap-5 rounded-2xl border border-white/10 bg-white/[0.09] px-5 py-5 backdrop-blur transition hover:border-white/20 hover:bg-white/[0.14] sm:px-6 lg:px-7">
+                <div className="min-w-0"><p className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{value}</p><p className="mt-1.5 text-sm font-medium text-indigo-100 sm:text-base">{label}</p></div>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/[0.12] text-white transition group-hover:bg-violet-500/40"><Icon className="h-6 w-6" strokeWidth={1.8} /></span>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
-          <Icon className="h-6 w-6 text-white" />
-        </div>
-
-      </div>
-    </div>
-  ))}
-</div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-3 lg:px-8">
-        <AdBar />
       </section>
 
       <section className="mx-auto max-w-7xl  px-5 py-12 lg:px-8">
@@ -450,7 +265,7 @@ export default async function Home() {
               <div>
                 <h3 className="font-semibold">Verify</h3>
                 <p className="text-sm text-slate-300">
-                  Check ratings & reviews
+                  Explore local businesses
                 </p>
               </div>
             </div>
@@ -507,209 +322,13 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
-
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl  font-semibold text-slate-900">
-              What Our Users Say
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Trusted by businesses and customers across India
-            </p>
-          </div>
-
-          <div className="hidden items-center gap-2 md:flex">
-            <button className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200">
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-
-            <button className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200">
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {testimonials.map((item) => (
-            <article
-              key={item.name}
-              className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-lg"
-            >
-              <div className="flex items-start gap-4">
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
-                  {item.name.charAt(0)}
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-slate-900">
-                        {item.name}
-                      </h3>
-
-                      <p className="text-xs text-slate-500">
-                        {item.city}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-amber-500">
-                      <Star className="h-4 w-4 fill-current" />
-                      <span className="text-sm font-medium text-slate-700">
-                        5.0
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {item.text}
-                  </p>
-                </div>
-
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="mx-auto max-w-7xl px-5 py-3 lg:px-8">
-        <AdBar />
-      </section>
-
-    <section id="blog" className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-  
-  {/* Header - More Compact */}
-  <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-    <div>
-      <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-1.5 border border-indigo-100/50">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-        </span>
-        <span className="text-xs font-semibold text-indigo-600 tracking-wide">
-          Insights & Tips
-        </span>
-      </div>
-      
-      <h2 className="mt-3 text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-        Latest <span className="text-slate-900 bg-clip-text ">From Our Blog</span>
-      </h2>
-      
-      <p className="mt-1 text-sm text-slate-500">
-        Insights, reviews and growth strategies for modern businesses.
-      </p>
-    </div>
-
-    <a
-      href="/directory"
-      className="group hidden md:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
-    >
-      View All
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </a>
+      <section id="blog" className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+  <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center">
+    <h2 className="text-2xl font-semibold text-slate-900">Latest From Our Blog</h2>
+    <p className="mt-2 text-sm text-slate-500">New articles will appear here when they are published.</p>
   </div>
-
-  {/* Blog Grid - More Compact Layout */}
-  <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
-
-    {/* Featured Blog - Compact */}
-    <article className="group relative overflow-hidden rounded-2xl">
-      <div
-        className="h-[380px] w-full bg-cover bg-center transition duration-700 group-hover:scale-105"
-        style={{ backgroundImage: blogs[0].image }}
-      />
-      
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-      
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[10px] font-semibold uppercase tracking-wider border border-white/10">
-            {blogs[0].tag}
-          </span>
-          <span className="text-[10px] text-white/60">•</span>
-          <span className="text-[10px] text-white/60">5 min read</span>
-        </div>
-        
-        <h3 className="text-2xl md:text-3xl font-bold leading-tight line-clamp-2 group-hover:text-indigo-200 transition-colors">
-          {blogs[0].title}
-        </h3>
-        
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-xs text-white/70">
-            <span>{blogs[0].date}</span>
-            <span className="w-1 h-1 rounded-full bg-white/30" />
-            <span className="flex items-center gap-1">
-              <span className="text-indigo-300">✦</span>
-              Featured
-            </span>
-          </div>
-          
-          <Link href="/#blog" className="rounded-xl bg-white/10 backdrop-blur-md px-4 py-2 text-xs font-medium text-white transition-all hover:bg-white hover:text-slate-900 border border-white/20 hover:border-white">
-            Read Article →
-          </Link>
-        </div>
-      </div>
-    </article>
-
-    {/* Side Articles - Compact */}
-    <div className="flex flex-col gap-3">
-      {blogs.slice(1, 4).map((post, index) => (
-        <article
-          key={post.title}
-          className="group flex gap-3 rounded-xl border border-slate-100 bg-white p-2.5 transition-all hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-50/50"
-        >
-          <div
-            className="h-24 w-28 shrink-0 rounded-lg bg-cover bg-center transition-transform group-hover:scale-105"
-            style={{ backgroundImage: post.image }}
-          />
-          
-          <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider">
-                {post.tag}
-              </span>
-              <span className="h-1 w-1 rounded-full bg-slate-300" />
-              <span className="text-[10px] text-slate-400">{post.date}</span>
-            </div>
-            
-            <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
-              {post.title}
-            </h3>
-            
-            <div className="mt-1.5 flex items-center gap-3 text-[10px] text-slate-400">
-              <span className="flex items-center gap-1">
-                <span className="text-indigo-300">◆</span>
-                3 min read
-              </span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">12 comments</span>
-            </div>
-          </div>
-        </article>
-      ))}
-      
-      {/* View All Mobile Button */}
-      <a
-        href="/directory"
-        className="mt-1 flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 md:hidden"
-      >
-        View All Articles
-        <ArrowRight className="h-4 w-4" />
-      </a>
-    </div>
-
-  </div>
-
- 
 </section>
-      <section className="mx-auto max-w-7xl px-5 py-5 lg:px-8">
-        <AdBar />
-      </section>
-
- <section className="mx-auto max-w-7xl px-5 pb-10 lg:px-8">
+<section className="mx-auto max-w-7xl px-5 pb-10 lg:px-8">
   <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600">
 
     <div className="flex flex-col items-center justify-between gap-5 px-6 py-6 lg:flex-row">
@@ -761,7 +380,7 @@ export default async function Home() {
             One-stop for local businesses, services, and stores across India
           </h2>
           <p className="mt-4 max-w-6xl text-sm leading-6 text-slate-600">
-            Genesis Virtue helps you discover local businesses and services in one place. Explore categories, compare business details, ratings, and reviews, then contact the business that fits your needs. Business owners can create a listing to help more people find them.
+            Genesis Virtue helps you discover local businesses and services in one place. Explore categories, compare business details, and contact the business that fits your needs. Business owners can create a listing to help more people find them.
           </p>
 
           <h3 className="mt-9 text-lg font-semibold text-slate-900">
