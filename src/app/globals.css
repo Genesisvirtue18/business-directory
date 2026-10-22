@@ -41,6 +41,18 @@ body {
   font-family: var(--font-inter), var(--font-devanagari), "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
+.hero-background {
+  background: linear-gradient(135deg, #071632 0%, #191b4b 55%, #342d82 100%);
+}
+
+@media (min-width: 1024px) {
+  .hero-background {
+    background-image: url("/images/hero-bg.webp");
+    background-size: cover;
+    background-position: center;
+  }
+}
+
 /* Every heading picks up the display face without repeating a utility class on each one. */
 h1,
 h2,

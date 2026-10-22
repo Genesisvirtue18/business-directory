@@ -116,7 +116,7 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
             </div>
 
             <p className="mt-2 text-[12px] italic text-[#4a4455] bg-[#fbf8fc] p-2 rounded border border-[#ccc3d7]/50">
-              "{lead.message}"
+              &quot;{lead.message}&quot;
             </p>
 
             <div className="mt-2 flex items-center justify-between text-[11px] text-[#7b7486]">

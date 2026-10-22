@@ -11,7 +11,6 @@ import {
   HomeIcon,
   MapPin,
   Plus,
-  Rocket,
   Search,
   ShieldCheck,
   Sparkles,
@@ -30,10 +29,12 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
 import NearbyCategoryLink from "@/components/NearbyCategoryLink";
 import BestNearYou from "@/components/BestNearYou";
+import HeroBackdrop from "@/components/HeroBackdrop";
 import { getBusinesses, getCategories, getCities } from "@/lib/api";
-import { businessDetailPath, toHomeBusiness } from "@/lib/directory-data";
+import { toHomeBusiness } from "@/lib/directory-data";
 
 const categoryIconMatchers = [
   [/restaurant|food|dining|cafe|catering|bakery|pizza|hospitality/, Utensils],
@@ -60,7 +61,7 @@ const categoryImageMatchers = [
   [/restaurant|food|dining|cafe|catering|bakery|pizza/, "photo-1517248135467-4c7edcad34c4"],
   [/doctor|medical|health|clinic|dent|pharmacy|hospital|vet/, "photo-1576091160399-112ba8d25d1d"],
   [/beauty|salon|spa|cosmetic|makeup/, "photo-1560066984-138dadb4c035"],
-  [/education|school|college|university|training|tuition/, "photo-1523050854058-8df90110c9f1"],
+  [/education|school|college|university|training|tuition/, "photo-1523240795612-9a054b0db644"],
   [/home|real-estate|property|interior|furniture|construction/, "photo-1600210492486-724fe5c67fb0"],
   [/auto|car|vehicle|transport|taxi|bike|motor/, "photo-1486262715619-67b85e0b08d3"],
   [/repair|plumb|electric|maintenance|service|mechanic/, "photo-1621905251918-48416bd8575a"],
@@ -92,14 +93,12 @@ export default async function Home() {
       id: category._id || category.id || `${category.name}-${index}`,
       slug: category.slug,
       label: category.name,
-      description: category.description,
       image: imageForCategory(category),
       icon: iconForCategory(category),
       };
     });
-  const featuredCategories = categories.slice(0, 12);
+  const featuredCategories = categories.slice(0, 8);
   const businesses = businessItems.map(toHomeBusiness);
-  const popularCategories = categories.slice(0, 6);
   const stats = [
     { value: (pagination.totalItems || 0).toLocaleString(), label: "Businesses Listed", icon: Building2 },
     { value: (verifiedPagination.totalItems || 0).toLocaleString(), label: "Verified Businesses", icon: BadgeCheck },
@@ -107,10 +106,8 @@ export default async function Home() {
   ];
   return (
     <main className="min-h-screen bg-white text-slate-950">
-    <section className="relative overflow-hidden bg-[#071632]">
-      <video autoPlay muted loop playsInline preload="metadata" poster="/images/hero-bg.png" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover">
-        <source src="/images/hero-video.mp4" type="video/mp4" />
-      </video>
+    <section className="hero-background relative overflow-hidden">
+      <HeroBackdrop />
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#040d26]/85 via-[#040d26]/60 to-[#040d26]/25" />
 
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
@@ -118,18 +115,6 @@ export default async function Home() {
             <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[-1.5px] text-violet-700">
               Genesis Virtue
             </Link>
-            <form action="/directory" method="get" className="order-3 flex w-full max-w-xl items-center gap-2 sm:order-none sm:flex-1 sm:px-4">
-              <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3">
-                <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-                <input name="city" placeholder="City" className="w-full bg-transparent text-sm outline-none" />
-              </label>
-              <label className="flex h-10 min-w-0 flex-[1.5] items-center gap-2 rounded-md border border-slate-300 bg-white px-3">
-                <input name="q" placeholder="Business or service" className="w-full bg-transparent text-sm outline-none" />
-                <button aria-label="Search" className="-mr-2 flex h-8 w-9 shrink-0 items-center justify-center rounded bg-violet-700 text-white hover:bg-violet-800">
-                  <Search className="h-4 w-4" />
-                </button>
-              </label>
-            </form>
             <div className="flex items-center gap-2">
               <Link href="/register" className="flex h-9 items-center gap-1 rounded border border-slate-300 px-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 sm:px-3">
                 <Plus className="h-3.5 w-3.5" />Add Your Business Now
@@ -140,32 +125,37 @@ export default async function Home() {
             </div>
           </div>
         </header>
-        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-9 lg:px-8 lg:pb-10 lg:pt-12">
-          <div className="grid items-center gap-8 lg:grid-cols-[1fr_360px] lg:gap-12">
-            <div className="max-w-2xl">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-9 pt-9 sm:pb-10 lg:px-8 lg:pt-12">
+            <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-100 ring-1 ring-white/15"><ShieldCheck className="h-4 w-4 text-violet-300" />India&apos;s local business directory</span>
               <h1 className="mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Find Trusted Businesses.<br /><span className="text-violet-300">Grow Together.</span></h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-200 sm:text-base">Discover local services and connect with businesses across India.</p>
             </div>
-            
-          </div>
-          <form action="/directory" method="get" className="mt-8 flex max-w-5xl flex-col gap-2 rounded-xl bg-white p-2 shadow-2xl sm:flex-row">
-            <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-lg px-3 text-slate-400"><MapPin className="h-5 w-5 shrink-0" /><input name="city" placeholder="Enter city or location" className="w-full text-sm text-slate-900 outline-none" /></label>
-            <label className="flex h-12 min-w-0 flex-[1.5] items-center gap-3 rounded-lg border-t border-slate-100 px-3 text-slate-400 sm:border-l sm:border-t-0"><Search className="h-5 w-5 shrink-0" /><input name="q" placeholder="Business or service" className="w-full text-sm text-slate-900 outline-none" /></label>
-            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-violet-700 px-6 text-sm font-semibold text-white hover:bg-violet-800"><Search className="h-4 w-4" />Search Now</button>
+          <form action="/directory" method="get" className="mt-7 grid max-w-5xl gap-2 rounded-xl bg-white p-2 shadow-2xl sm:grid-cols-[1fr_1.35fr_auto] sm:items-end">
+            <label htmlFor="home-city" className="grid min-h-16 min-w-0 grid-cols-[20px_1fr] items-center gap-x-3 rounded-lg border border-slate-200 px-3 py-2 text-slate-400 transition focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200">
+              <MapPin className="row-span-2 h-5 w-5 shrink-0" />
+              <span className="text-[11px] font-semibold leading-4 text-slate-600">City or area</span>
+              <input id="home-city" name="city" autoComplete="address-level2" placeholder="Enter a city or area" className="w-full text-sm text-slate-900 outline-none placeholder:text-slate-500" />
+            </label>
+            <label htmlFor="home-query" className="grid min-h-16 min-w-0 grid-cols-[20px_1fr] items-center gap-x-3 rounded-lg border border-slate-200 px-3 py-2 text-slate-400 transition focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200">
+              <Search className="row-span-2 h-5 w-5 shrink-0" />
+              <span className="text-[11px] font-semibold leading-4 text-slate-600">Business, service, or category</span>
+              <input id="home-query" name="q" placeholder="What are you looking for?" className="w-full text-sm text-slate-900 outline-none placeholder:text-slate-500" />
+            </label>
+            <button className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-violet-700 px-6 text-sm font-semibold text-white hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Search className="h-4 w-4" />Search</button>
           </form>
-          {popularCategories.length ? <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className="mr-1 font-semibold text-white">Popular categories</span>{popularCategories.map(({ id, slug, label }) => <Link key={id} href={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5 text-slate-100 transition hover:bg-white/15">{label}</Link>)}</div> : null}
+          <p className="mt-3 text-sm text-slate-200">Search by city or service, or <Link href="#nearby" className="font-semibold text-white underline decoration-white/60 underline-offset-4 hover:decoration-white">use your location</Link>.</p>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl grid-cols-3 divide-x divide-slate-200 border-b border-slate-100 px-5 py-5 lg:px-8">
-        {stats.map(({ value, label, icon: Icon }) => <div key={label} className="flex items-center justify-center gap-2 px-2 py-2 sm:gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><Icon className="h-4 w-4" /></span><span><span className="block text-base font-bold text-slate-900 sm:text-lg">{value}</span><span className="text-[10px] text-slate-500 sm:text-xs">{label}</span></span></div>)}
+      <section aria-label="Directory summary" className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-slate-200 border-b border-slate-100 px-5 py-3 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:px-8">
+        {stats.map(({ value, label, icon: Icon }) => <div key={label} className="flex items-center justify-start gap-3 px-2 py-2 sm:justify-center sm:px-3 sm:py-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><Icon className="h-4 w-4" /></span><span><span className="block text-base font-bold text-slate-900 sm:text-lg">{value}</span><span className="text-xs text-slate-600">{label}</span></span></div>)}
       </section>
 
       <section id="categories" className="mx-auto max-w-7xl px-5 py-9 lg:px-8">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-semibold text-slate-900">Discover Local Specialties</h2><p className="mt-1 text-sm text-slate-500">Browse businesses by category.</p></div><Link href="/directory" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-700">All categories <ArrowRight className="h-4 w-4" /></Link></div>
-        {featuredCategories.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
-          {featuredCategories.map(({ id, slug, label, image, icon: Icon }) => <NearbyCategoryLink key={id} category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group relative h-36 overflow-hidden rounded-xl bg-slate-200 sm:h-40"><img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /><span className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" /><span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-violet-700"><Icon className="h-5 w-5" /></span><span className="absolute bottom-3 left-3 right-3 line-clamp-2 text-sm font-semibold text-white">{label}</span></NearbyCategoryLink>)}
+        {featuredCategories.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4">
+          {featuredCategories.map(({ id, slug, label, image, icon: Icon }) => <NearbyCategoryLink key={id} category={slug || id} fallbackHref={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"} className="group relative h-36 overflow-hidden rounded-xl bg-slate-200 sm:h-40"><Image src={image} alt="" fill sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 16vw" className="object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" /><span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-violet-700"><Icon className="h-5 w-5" /></span><span className="absolute bottom-3 left-3 right-3 line-clamp-2 text-sm font-semibold text-white">{label}</span></NearbyCategoryLink>)}
         </div> : <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">Categories will appear here when they are available.</p>}
       </section>
 
@@ -205,35 +195,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1800px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#071737] via-[#191b4b] to-[#342d82] px-5 py-8 shadow-[0_24px_65px_rgba(15,23,42,0.16)] sm:px-8 sm:py-10 lg:px-12">
-          <div className="mb-7 text-center sm:mb-9">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-200">Genesis Virtue</span>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl">Trusted Across India</h2>
-            <p className="mt-2 text-sm text-indigo-100 sm:text-base">Connecting customers with verified businesses every day</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-            {stats.map(({ value, label, icon: Icon }) => (
-              <div key={label} className="group flex min-h-32 items-center justify-between gap-5 rounded-2xl border border-white/10 bg-white/[0.09] px-5 py-5 backdrop-blur transition hover:border-white/20 hover:bg-white/[0.14] sm:px-6 lg:px-7">
-                <div className="min-w-0"><p className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{value}</p><p className="mt-1.5 text-sm font-medium text-indigo-100 sm:text-base">{label}</p></div>
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/[0.12] text-white transition group-hover:bg-violet-500/40"><Icon className="h-6 w-6" strokeWidth={1.8} /></span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-7xl  px-5 py-12 lg:px-8">
         <div
           className="relative overflow-hidden rounded-3xl px-8 py-8 text-white"
           style={{
-            backgroundImage: `
-      linear-gradient(
-        rgba(15,23,42,0.82),
-        rgba(15,23,42,0.82)
-      ),
-      url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000&auto=format&fit=crop')
-    `,
+            backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.94), rgba(49,46,129,0.92))",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -292,87 +258,34 @@ export default async function Home() {
           className="relative overflow-hidden rounded-3xl"
           style={{
             backgroundImage:
-              "url('/images/exlusive-deals-image.png')",
+              "url('/images/exclusive-deals-image.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
           <div className="px-8 py-12 md:px-12">
 
-            <span className="inline-block rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-indigo-100 backdrop-blur">
-              Great Offers Near You
-            </span>
-
-            <h2 className="mt-6 max-w-xl text-4xl font-semibold leading-tight text-white">
-              Exclusive Deals from Top Businesses
-            </h2>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <h2 className="max-w-xl text-4xl font-semibold leading-tight text-white">Exclusive Deals from Top Businesses</h2>
+              <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white">Preview</span>
+            </div>
 
             <p className="mt-4 max-w-lg text-base leading-7 text-slate-200">
               Explore amazing discounts and offers from trusted local businesses.
             </p>
 
-            <a
-              href="/directory"
-              className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700"
-            >
-              Explore Deals
-              <ArrowRight className="h-4 w-4" />
-            </a>
-
           </div>
         </div>
       </section>
-      <section id="blog" className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
-  <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center">
-    <h2 className="text-2xl font-semibold text-slate-900">Latest From Our Blog</h2>
-    <p className="mt-2 text-sm text-slate-500">New articles will appear here when they are published.</p>
-  </div>
-</section>
-<section className="mx-auto max-w-7xl px-5 pb-10 lg:px-8">
-  <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600">
-
-    <div className="flex flex-col items-center justify-between gap-5 px-6 py-6 lg:flex-row">
-
-      <div className="flex items-center gap-4">
-
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-          <Rocket className="h-7 w-7 text-white" />
+      <section id="blog" className="mx-auto max-w-7xl px-5 py-9 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-9 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <h2 className="text-2xl font-semibold text-slate-900">Latest From Our Blog</h2>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">Preview</span>
+          </div>
+          <p className="mt-2 text-sm text-slate-500">New articles will appear here when they are published.</p>
         </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-white lg:text-2xl">
-            Grow Your Business With Genesis Virtue
-          </h2>
-
-          <p className="mt-1 text-sm text-indigo-100">
-            Reach more customers and increase visibility.
-          </p>
-        </div>
-
-      </div>
-
-      <div className="flex gap-3">
-
-        <Link
-          href="/register"
-          className="inline-flex h-10 items-center rounded-xl bg-white px-5 text-sm font-semibold text-indigo-600"
-        >
-          Add Your Business Now
-        </Link>
-
-        <Link
-          href="/login"
-          className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 px-5 text-sm font-semibold text-white"
-        >
-          Login
-        </Link>
-
-      </div>
-
-    </div>
-
-  </div>
-</section>
+      </section>
 
       <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
@@ -383,26 +296,6 @@ export default async function Home() {
             Genesis Virtue helps you discover local businesses and services in one place. Explore categories, compare business details, and contact the business that fits your needs. Business owners can create a listing to help more people find them.
           </p>
 
-          <h3 className="mt-9 text-lg font-semibold text-slate-900">
-            Browse categories for everyday needs
-          </h3>
-          <div className="mt-5 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.slice(0, 8).map(({ id, slug, label, description, icon: Icon }) => (
-              <Link
-                key={id}
-                href={slug ? `/directory?category=${encodeURIComponent(slug)}` : "/directory"}
-                className="group"
-              >
-                <span className="flex items-center gap-2.5 font-semibold text-slate-800 group-hover:text-violet-700">
-                  <Icon className="h-5 w-5 shrink-0 text-slate-500 group-hover:text-violet-600" strokeWidth={1.7} />
-                  {label}
-                </span>
-                <span className="mt-2 block text-sm leading-6 text-slate-600">
-                  {description || `Find local ${label.toLowerCase()} businesses, view their details, and connect with the right provider.`}
-                </span>
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -413,7 +306,7 @@ export default async function Home() {
 
   <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
 
-    <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.2fr]">
+    <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.2fr] xl:gap-8">
 
       {/* Brand */}
       <div>
@@ -434,7 +327,7 @@ export default async function Home() {
         </div>
 
         <p className="mt-5 max-w-xs text-sm leading-7 text-slate-400">
-          India's trusted platform to discover, connect and grow with verified local businesses.
+          India&apos;s trusted platform to discover, connect and grow with verified local businesses.
         </p>
 
         {/* Socials */}
@@ -443,6 +336,7 @@ export default async function Home() {
             <a
               key={i}
               href={["https://facebook.com", "https://instagram.com", "https://linkedin.com", "https://youtube.com"][i]}
+              aria-label={["Facebook", "Instagram", "LinkedIn", "YouTube"][i]}
               className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-slate-300 transition hover:bg-indigo-600 hover:text-white"
             >
               <Icon size={18} />
@@ -477,13 +371,13 @@ export default async function Home() {
 
           <div className="space-y-3">
             {section.links.map((link) => (
-              <a
+              <Link
                 key={link}
                 href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/register", "Dashboard": "/login", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/#contact", "Sitemap": "/" })[link] || "/directory")}
                 className="block text-sm text-slate-400 transition hover:text-white"
               >
                 {link}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -491,9 +385,10 @@ export default async function Home() {
 
       {/* Newsletter */}
       <div>
-        <h3 className="font-semibold">
-          Newsletter
-        </h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <h3 className="font-semibold">Newsletter</h3>
+          <span className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">Preview</span>
+        </div>
 
         <p className="mt-4 text-sm leading-6 text-slate-400">
           Get business tips, SEO updates and exclusive offers.
@@ -501,12 +396,15 @@ export default async function Home() {
 
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-3">
           <input
-            placeholder="Enter your email"
-            className="h-11 w-full rounded-xl bg-white px-4 text-sm text-slate-900 outline-none"
+            type="email"
+            aria-label="Email address — newsletter preview"
+            placeholder="Newsletter preview"
+            disabled
+            className="h-11 w-full cursor-not-allowed rounded-xl bg-white/80 px-4 text-sm text-slate-700 outline-none disabled:opacity-80"
           />
 
-          <button className="mt-3 w-full rounded-xl bg-indigo-600 py-3 text-sm font-medium transition hover:bg-indigo-700">
-            Subscribe
+          <button disabled className="mt-3 w-full cursor-not-allowed rounded-xl bg-indigo-600 py-3 text-sm font-medium text-white disabled:opacity-60">
+            Subscribe preview
           </button>
         </div>
       </div>
@@ -521,9 +419,9 @@ export default async function Home() {
       </p>
 
       <div className="flex gap-6">
-        <a href="/#contact">Privacy Policy</a>
-        <a href="/#contact">Terms</a>
-        <a href="/#contact">Cookies</a>
+        <Link href="/#contact">Privacy Policy</Link>
+        <Link href="/#contact">Terms</Link>
+        <Link href="/#contact">Cookies</Link>
       </div>
 
     </div>

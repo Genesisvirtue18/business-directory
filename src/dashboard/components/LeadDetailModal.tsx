@@ -113,7 +113,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
             <span className="text-[11px] uppercase font-bold text-[#7b7486] tracking-wider block mb-1">
               Customer Message / Inquiry
             </span>
-            <p className="text-[13px] text-[#1b1b1e] italic leading-relaxed">"{lead.message}"</p>
+            <p className="text-[13px] text-[#1b1b1e] italic leading-relaxed">&quot;{lead.message}&quot;</p>
             <p className="text-[11px] text-[#7b7486] mt-2">Target Storefront: {lead.targetBusiness}</p>
           </div>
 

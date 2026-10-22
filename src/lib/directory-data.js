@@ -24,6 +24,13 @@ export function categoryListingPath(city, category) {
   return `/${citySlug}/${categorySlug}/nct-${encodeURIComponent(categoryId)}`;
 }
 
+function imageUrl(value) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  const markdownUrl = trimmed.match(/^!?\[[^\]]*\]\((https?:\/\/[^)]+)\)$/);
+  return markdownUrl?.[1] || trimmed;
+}
+
 export function toDirectoryBusiness(business, index = 0) {
   const nameParts = (business.name || "Business").split(/\s+/).filter(Boolean);
   const closingHour = business.workingHours?.find((entry) => !entry.isClosed)?.closes;
@@ -37,7 +44,7 @@ export function toDirectoryBusiness(business, index = 0) {
     badge: business.verificationStatus === "verified" ? "Verified" : "Business",
     verified: business.verificationStatus === "verified",
     swatch: gradients[index % gradients.length],
-    image: business.images?.[0] || business.logo,
+    image: imageUrl(business.images?.[0] || business.logo),
   };
 }
 
@@ -46,6 +53,6 @@ export function toHomeBusiness(business) {
     ...business,
     category: business.category?.name || business.keywords?.[0] || "Business",
     city: business.address?.city || "Location not provided",
-    image: business.images?.[0] || business.logo,
+    image: imageUrl(business.images?.[0] || business.logo),
   };
 }

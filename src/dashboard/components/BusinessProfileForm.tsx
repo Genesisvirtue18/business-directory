@@ -8,13 +8,14 @@ type Form = Record<string, string>;
 type Hours = { day: string; isClosed: boolean; opens: string; closes: string };
 type Faq = { question: string; answer: string };
 type Offer = { title: string; description: string; code: string };
+type ProfileFaq = { question?: string; answer?: string };
+type ProfileOffer = { title?: string; description?: string; code?: string };
 const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const steps = ['Basic Information', 'Contact Information', 'Address & Location', 'Business Details', 'Working Hours', 'Media & Social', 'Additional Information', 'Review & Publish'];
 const establishedYearOptions = Array.from({ length: new Date().getFullYear() - 1799 }, (_, index) => String(new Date().getFullYear() - index));
 const emptyForm: Form = { name: '', description: '', category: '', subcategory: '', services: '', phone: '', alternatePhone: '', whatsapp: '', email: '', website: '', addressLine1: '', addressLine2: '', landmark: '', locality: '', city: '', state: '', postalCode: '', country: 'IN', establishedYear: '', teamSize: '', priceRange: '', timeZone: 'Asia/Kolkata', amenities: '', logo: '', images: '', facebook: '', instagram: '', linkedin: '', youtube: '', x: '', mapEmbedUrl: '' };
 const timeZones = ['Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Asia/Tokyo', 'Asia/Kathmandu', 'Asia/Bangkok', 'Europe/London', 'Europe/Paris', 'America/New_York', 'America/Los_Angeles', 'Australia/Sydney', 'UTC'];
 const split = (value?: string) => (value || '').split(',').map(part => part.trim()).filter(Boolean);
-const lines = (value?: string) => (value || '').split('\n').map(part => part.trim()).filter(Boolean);
 const textField = (value?: string) => value || '';
 const phoneForForm = (value?: string) => { const digits = (value || '').replace(/\D/g, ''); return digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits.length === 11 && digits.startsWith('0') ? digits.slice(1) : digits.slice(-10); };
 
@@ -57,8 +58,8 @@ export const BusinessProfileForm = ({ businessId, onClose, onSaved }: { business
         mapEmbedUrl: textField(item.mapEmbedUrl),
       });
       setHighlights(item.highlights?.length ? item.highlights : ['']);
-      setFaqs(item.faqs?.length ? item.faqs.map((faq: any) => ({ question: faq.question || '', answer: faq.answer || '' })) : [{ question: '', answer: '' }]);
-      setOffers(item.offers?.length ? item.offers.map((offer: any) => ({ title: offer.title || '', description: offer.description || '', code: offer.code || '' })) : [{ title: '', description: '', code: '' }]);
+      setFaqs(item.faqs?.length ? item.faqs.map((faq: ProfileFaq) => ({ question: faq.question || '', answer: faq.answer || '' })) : [{ question: '', answer: '' }]);
+      setOffers(item.offers?.length ? item.offers.map((offer: ProfileOffer) => ({ title: offer.title || '', description: offer.description || '', code: offer.code || '' })) : [{ title: '', description: '', code: '' }]);
       const storedCoordinates = item.location?.coordinates;
       if (storedCoordinates?.length === 2) {
         setCoordinates([Number(storedCoordinates[0]), Number(storedCoordinates[1])]);

@@ -89,21 +89,12 @@ export default function DashboardApp({ role }: DashboardAppProps) {
     } catch (error) { showToast(error instanceof Error ? error.message : 'Unable to reject this listing'); }
   };
 
-  const handleAddBusiness = (newBiz: BusinessListing) => {
-    setActiveBusinesses((prev) => [newBiz, ...prev]);
-    showToast(`✓ New business "${newBiz.name}" registered successfully!`);
-  };
-
   const handleEditBusiness = () => {
     if (primaryOwnerBusiness?.status === 'Pending') {
       showToast('This listing is in the admin review queue and cannot be edited yet.');
       return;
     }
     setIsBusinessFormOpen(true);
-  };
-
-  const handleAddCategory = (name: string) => {
-    showToast(`✓ Category "${name}" created and synced with directory search.`);
   };
 
   const handleUpdateLeadStatus = (leadId: string, newStatus: Lead['status']) => {
@@ -147,10 +138,6 @@ export default function DashboardApp({ role }: DashboardAppProps) {
       )
     );
     showToast('✓ Official response published to patient review!');
-  };
-
-  const handleExportData = () => {
-    showToast('Exporting directory metrics and leads data to CSV...');
   };
 
   const primaryOwnerBusiness = activeBusinesses[0];

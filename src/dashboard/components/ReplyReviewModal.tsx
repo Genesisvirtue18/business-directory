@@ -63,7 +63,7 @@ export const ReplyReviewModal: React.FC<ReplyReviewModalProps> = ({
                 ))}
               </div>
             </div>
-            <p className="text-[13px] italic text-[#4a4455]">"{review.comment}"</p>
+            <p className="text-[13px] italic text-[#4a4455]">&quot;{review.comment}&quot;</p>
           </div>
 
           {/* Quick reply templates */}
@@ -77,7 +77,7 @@ export const ReplyReviewModal: React.FC<ReplyReviewModalProps> = ({
                   onClick={() => setReplyText(t)}
                   className="block w-full text-left text-[11px] p-2 rounded-lg bg-[#fbf8fc] hover:bg-[#ebdcff]/30 text-[#4a4455] hover:text-[#5300b7] border border-[#ccc3d7]/50 transition-colors"
                 >
-                  "{t}"
+                  &quot;{t}&quot;
                 </button>
               ))}
             </div>

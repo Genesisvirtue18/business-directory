@@ -143,7 +143,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   <div>
                     <h4 className="text-[13px] font-bold text-[#1b1b1e]">{l.name}</h4>
                     <p className="text-[11px] text-[#4a4455] italic truncate max-w-xs">
-                      "{l.message}"
+                      &quot;{l.message}&quot;
                     </p>
                   </div>
                   <span className="text-[10px] text-[#7b7486] shrink-0">{l.phone}</span>
@@ -155,7 +155,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           {filteredBusinesses.length === 0 && filteredLeads.length === 0 && query && (
             <div className="text-center py-8 text-[#7b7486]">
               <span className="material-symbols-outlined text-3xl">search_off</span>
-              <p className="text-[13px] mt-1">No matching results for "{query}"</p>
+              <p className="text-[13px] mt-1">No matching results for &quot;{query}&quot;</p>
             </div>
           )}
         </div>

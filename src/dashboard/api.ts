@@ -1,17 +1,59 @@
 import { BusinessListing, Review } from './types';
 
+type ApiReview = {
+  _id?: string;
+  reviewerName?: string;
+  rating?: number | string;
+  createdAt?: string;
+  comment?: string;
+  isVerified?: boolean;
+};
+
+type ApiBusiness = {
+  _id?: string;
+  id?: string;
+  name?: string;
+  owner?: { name?: string };
+  category?: { name?: string };
+  address?: Record<string, string>;
+  location?: { coordinates?: number[] };
+  phone?: string;
+  alternatePhone?: string;
+  whatsapp?: string;
+  email?: string;
+  website?: string;
+  logo?: string;
+  images?: string[];
+  services?: string[];
+  workingHours?: BusinessListing['workingHours'];
+  listingStatus?: string;
+  verificationStatus?: string;
+  createdAt?: string;
+  averageRating?: number;
+  reviewCount?: number;
+  reviews?: ApiReview[];
+  viewCount?: number;
+  leadCount?: number;
+  description?: string;
+};
+
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://directory-backend-ai6r.onrender.com/api/v1').replace(/\/$/, '');
 const token = () => typeof window === 'undefined' ? '' : localStorage.getItem('directflow_access_token') || '';
 export async function request(path: string, options: RequestInit = {}) { const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token() ? { Authorization: `Bearer ${token()}` } : {}), ...options.headers } }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.message || 'Unable to load dashboard data'); return body.data || {}; }
 const ago = (value?: string) => value ? new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(Math.round((new Date(value).getTime() - Date.now()) / 86400000), 'day') : 'Recently';
-const reviewStats = (item: any) => { const ratings = (item.reviews || []).map((review: any) => Number(review.rating)).filter((rating: number) => Number.isFinite(rating) && rating >= 1 && rating <= 5); return ratings.length ? { average: Number((ratings.reduce((sum: number, rating: number) => sum + rating, 0) / ratings.length).toFixed(2)), count: ratings.length } : { average: Number(item.averageRating || 0), count: Number(item.reviewCount || 0) }; };
-export const toDashboardBusiness = (item: any): BusinessListing => { const stats = reviewStats(item); return ({ id: item._id || item.id, name: item.name, owner: item.owner?.name || 'Business owner', category: (item.category?.name || 'Services') as BusinessListing['category'], location: [item.address?.locality, item.address?.city, item.address?.state].filter(Boolean).join(', ') || 'Location not added', phone: item.phone || 'Not added', alternatePhone: item.alternatePhone, whatsapp: item.whatsapp, email: item.email, website: item.website, logo: item.logo, images: item.images || [], services: item.services || [], address: item.address || {}, workingHours: item.workingHours || [], status: item.listingStatus === 'published' ? 'Active' : item.listingStatus === 'rejected' ? 'Rejected' : item.listingStatus === 'pending_review' ? 'Pending' : item.listingStatus === 'suspended' ? 'Suspended' : 'Draft', timeAgo: ago(item.createdAt), rating: stats.average, averageRating: stats.average, reviewsCount: stats.count, views: Number(item.viewCount || 0), enquiries: Number(item.leadCount || 0), verified: item.verificationStatus === 'verified', description: item.description || '' }); };
-export async function loadOwnerDashboard(): Promise<{ businesses: BusinessListing[]; reviews: Review[] }> { const { items = [] } = await request('/owner/businesses?limit=100'); return { businesses: items.map(toDashboardBusiness), reviews: items.flatMap((business: any) => (business.reviews || []).map((review: any): Review => ({ id: review._id, author: review.reviewerName, rating: review.rating, timeAgo: ago(review.createdAt), comment: review.comment || '', verified: review.isVerified }))) }; }
+const reviewStats = (item: ApiBusiness) => { const ratings = (item.reviews || []).map((review) => Number(review.rating)).filter((rating) => Number.isFinite(rating) && rating >= 1 && rating <= 5); return ratings.length ? { average: Number((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(2)), count: ratings.length } : { average: Number(item.averageRating || 0), count: Number(item.reviewCount || 0) }; };
+export const toDashboardBusiness = (item: ApiBusiness): BusinessListing => { const stats = reviewStats(item); return ({ id: item._id || item.id || '', name: item.name || 'Business', owner: item.owner?.name || 'Business owner', category: (item.category?.name || 'Services') as BusinessListing['category'], location: [item.address?.locality, item.address?.city, item.address?.state].filter(Boolean).join(', ') || 'Location not added', phone: item.phone || 'Not added', alternatePhone: item.alternatePhone, whatsapp: item.whatsapp, email: item.email, website: item.website, logo: item.logo, images: item.images || [], services: item.services || [], address: item.address || {}, workingHours: item.workingHours || [], status: item.listingStatus === 'published' ? 'Active' : item.listingStatus === 'rejected' ? 'Rejected' : item.listingStatus === 'pending_review' ? 'Pending' : item.listingStatus === 'suspended' ? 'Suspended' : 'Draft', timeAgo: ago(item.createdAt), rating: stats.average, averageRating: stats.average, reviewsCount: stats.count, views: Number(item.viewCount || 0), enquiries: Number(item.leadCount || 0), verified: item.verificationStatus === 'verified', description: item.description || '' }); };
+export async function loadOwnerDashboard(): Promise<{ businesses: BusinessListing[]; reviews: Review[] }> { const { items = [] } = await request('/owner/businesses?limit=100'); return { businesses: (items as ApiBusiness[]).map(toDashboardBusiness), reviews: (items as ApiBusiness[]).flatMap((business) => (business.reviews || []).map((review): Review => ({ id: review._id || '', author: review.reviewerName || 'Customer', rating: Number(review.rating || 0), timeAgo: ago(review.createdAt), comment: review.comment || '', verified: Boolean(review.isVerified) }))) }; }
 export async function loadAdminDashboard(): Promise<BusinessListing[]> { const { items = [] } = await request('/admin/businesses?limit=100'); return items.map(toDashboardBusiness); }
 export async function reviewBusiness(id: string, decision: 'approve' | 'reject', rejectionReason?: string) { const { item } = await request(`/admin/businesses/${id}/review`, { method: 'PATCH', body: JSON.stringify({ decision, ...(rejectionReason ? { rejectionReason } : {}) }) }); return toDashboardBusiness(item); }
 export async function loadBusinessFormData() { const { items = [] } = await request('/categories/tree'); return { categories: items }; }
 export async function geocodeBusinessAddress(address: { addressLine1: string; addressLine2?: string; landmark?: string; locality?: string; city: string; state: string; postalCode?: string; country: string }) { const params = new URLSearchParams(Object.entries(address).filter((entry): entry is [string, string] => Boolean(entry[1]))); const { point } = await request(`/owner/geocode?${params}`, { signal: AbortSignal.timeout(15000) }); return point as { lat: number; lng: number; label: string }; }
 export async function loadOwnerBusiness(id: string) { const { item } = await request(`/owner/businesses/${id}`); return item; }
+export const loadGoogleProfileStatus = (id: string) => request(`/owner/businesses/${id}/google/status`);
+export const startGoogleProfileConnect = (id: string) => request(`/owner/businesses/${id}/google/connect`, { method: 'POST' });
+export const loadGoogleProfileLocations = (id: string) => request(`/owner/businesses/${id}/google/locations`);
+export const selectGoogleProfileLocation = (id: string, location: { accountName: string; locationName: string }) => request(`/owner/businesses/${id}/google/location`, { method: 'PUT', body: JSON.stringify(location) });
+export const disconnectGoogleProfile = (id: string) => request(`/owner/businesses/${id}/google/disconnect`, { method: 'DELETE' });
 export async function createOwnerBusiness(payload: Record<string, unknown>) { const { item } = await request('/owner/businesses', { method: 'POST', body: JSON.stringify(payload) }); return toDashboardBusiness(item); }
 export async function updateOwnerBusiness(id: string, payload: Record<string, unknown>) { const { item } = await request(`/owner/businesses/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }); return toDashboardBusiness(item); }
 export async function uploadBusinessImages(files: File[]) { const urls: string[] = []; for (let offset = 0; offset < files.length; offset += 10) { const form = new FormData(); files.slice(offset, offset + 10).forEach(file => form.append('images', file)); const response = await fetch(`${baseUrl}/owner/uploads`, { method: 'POST', headers: token() ? { Authorization: `Bearer ${token()}` } : {}, body: form }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.message || 'Unable to upload images'); urls.push(...(body.data?.urls || [])); } return urls; }
