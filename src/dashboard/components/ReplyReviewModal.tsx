@@ -94,7 +94,7 @@ export const ReplyReviewModal: React.FC<ReplyReviewModalProps> = ({
               className="w-full text-[13px] p-3 rounded-xl border border-[#ccc3d7] focus:outline-none focus:border-[#5300b7] focus:ring-1 focus:ring-[#5300b7]"
             />
             <p className="text-[10px] text-[#7b7486]">
-              Your response will be publicly visible to prospective patients beneath this review on the DirectFlow portal.
+              Your response will be publicly visible to prospective patients beneath this review on Lokal Lens.
             </p>
           </div>
 

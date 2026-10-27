@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { AdminTab, OwnerTab, UserRole } from '../types';
 
 interface DesktopSidebarProps {
@@ -28,8 +29,10 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ role, ownerTab, 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[#ddd5e6] bg-white p-5 md:flex">
       <div className="flex items-center gap-3 px-2 pb-8">
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#5300b7] text-white shadow-lg"><span className="material-symbols-outlined">hub</span></span>
-        <div><p className="font-bold text-[#5300b7]">DirectFlow</p><p className="text-xs text-[#7b7486]">{role === 'admin' ? 'Admin workspace' : 'Business workspace'}</p></div>
+        <div className="min-w-0">
+          <Image src="/logo.png" alt="Lokal Lens" width={230} height={40} className="h-auto w-40" />
+          <p className="mt-1 text-xs text-[#7b7486]">{role === 'admin' ? 'Admin workspace' : 'Business workspace'}</p>
+        </div>
       </div>
       <nav className="space-y-1">
         {items.map((item) => {

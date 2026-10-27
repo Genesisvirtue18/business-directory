@@ -10,7 +10,7 @@ export async function generateMetadata({ searchParams }) {
   const params = await searchParams;
   const hasSearchState = Object.keys(params || {}).some(key => !["limit"].includes(key));
   return {
-    title: "Find Local Businesses Near You | Genesis Virtue",
+    title: "Find Local Businesses Near You | Lokal Lens",
     description: "Discover local businesses by category, location, and distance.",
     alternates: { canonical: absoluteSiteUrl("/directory") },
     ...(hasSearchState ? { robots: { index: false, follow: true } } : {}),
@@ -69,7 +69,9 @@ export default async function DirectoryPage({ searchParams, routeCity, routeCate
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(directorySchema) }} />
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
         <div className="mx-auto flex min-h-[68px] max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-8">
-          <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[-1.5px] text-violet-700">Genesis Virtue</Link>
+          <Link href="/" aria-label="Lokal Lens home" className="shrink-0">
+            <Image src="/logo.png" alt="Lokal Lens" width={230} height={40} className="h-auto w-36 sm:w-44" />
+          </Link>
           <form action="/directory" method="get" className="order-3 flex w-full max-w-xl items-center gap-2 sm:order-none sm:flex-1 sm:px-4">
             <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3 transition focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"><MapPin className="h-4 w-4 shrink-0 text-slate-400" /><select aria-label="City" name="city" defaultValue={cityName || ""} className="w-full appearance-none bg-transparent text-sm text-slate-700 outline-none"><option value="">All cities</option>{cityOptions.map(city => <option key={city} value={city}>{city}</option>)}</select></label>
             <div className="flex h-10 min-w-0 flex-[1.5] items-center gap-2 rounded-md border border-slate-300 bg-white px-3 transition focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"><input aria-label="Business or service" name="q" defaultValue={params?.q || selectedCategory?.name || ""} placeholder="Business or service" className="w-full bg-transparent text-sm outline-none" />{categorySlug ? <input type="hidden" name="category" value={categorySlug} /> : null}<button type="submit" aria-label="Search" className="-mr-2 flex h-8 w-9 shrink-0 items-center justify-center rounded bg-violet-700 text-white hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Search className="h-4 w-4" /></button></div>

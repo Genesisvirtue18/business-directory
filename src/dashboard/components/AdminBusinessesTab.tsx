@@ -52,7 +52,7 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
           </button>
           <div>
             <h2 className="text-[20px] font-bold text-[#1b1b1e] font-headline-md">
-              Business Directory
+              Businesses
             </h2>
             <p className="text-[12px] text-[#7b7486]">
               {allListings.length} total local listings managed

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { disconnectGoogleProfile, loadGoogleProfileLocations, loadGoogleProfileStatus, selectGoogleProfileLocation, startGoogleProfileConnect } from '../api';
 
 type Location = { accountName: string; locationName: string; title: string; address?: string; city?: string };
@@ -9,9 +9,29 @@ export function GoogleBusinessProfileCard({ businessId }: { businessId: string }
   const [locations, setLocations] = useState<Location[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const autoChooseAttempted = useRef(false);
   const refresh = useCallback(async () => { try { setStatus(await loadGoogleProfileStatus(businessId)); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load Google connection'); } }, [businessId]);
   useEffect(() => { const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [refresh]);
   useEffect(() => { const timer = window.setTimeout(() => { const result = new URLSearchParams(window.location.search).get('googleBusinessProfile'); if (result === 'error') setError('Google authorization did not complete. Please try connecting again.'); }, 0); return () => window.clearTimeout(timer); }, []);
+  useEffect(() => {
+    if (!status?.connected) { autoChooseAttempted.current = false; return; }
+    if (status.selectedLocation || autoChooseAttempted.current) return;
+    autoChooseAttempted.current = true;
+    void (async () => {
+      setBusy(true); setError('');
+      try {
+        const result = await loadGoogleProfileLocations(businessId);
+        const availableLocations: Location[] = result.locations || [];
+        if (availableLocations.length === 1) {
+          await selectGoogleProfileLocation(businessId, availableLocations[0]);
+          await refresh();
+        } else if (availableLocations.length > 1) {
+          setLocations(availableLocations);
+        }
+      } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load Google locations'); }
+      finally { setBusy(false); }
+    })();
+  }, [businessId, refresh, status?.connected, status?.selectedLocation]);
   const connect = async () => { setBusy(true); setError(''); try { const result = await startGoogleProfileConnect(businessId); window.location.assign(result.authorizationUrl); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to connect Google'); setBusy(false); } };
   const fetchLocations = async () => { setBusy(true); setError(''); try { const result = await loadGoogleProfileLocations(businessId); setLocations(result.locations || []); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load Google locations'); } finally { setBusy(false); } };
   const choose = async (location: Location) => { setBusy(true); setError(''); try { await selectGoogleProfileLocation(businessId, location); setLocations([]); await refresh(); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to select location'); } finally { setBusy(false); } };

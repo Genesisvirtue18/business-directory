@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { UserRole } from '../types';
 
 interface HeaderProps {
@@ -8,6 +9,7 @@ interface HeaderProps {
   unreadNotificationsCount: number;
   onOpenProfileMenu?: () => void;
   onOpenMobileMenu?: () => void;
+  onLogout: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   unreadNotificationsCount,
   onOpenProfileMenu,
   onOpenMobileMenu,
+  onLogout,
 }) => {
   return (
     <header className="flex justify-between items-center w-full px-4 md:px-6 h-16 sticky top-0 z-40 bg-[#ffffff] shadow-sm border-b border-[#e4e1e6]">
@@ -31,35 +34,13 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {role === 'owner' ? (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#5300b7] flex items-center justify-center text-white font-bold shadow-sm">
-              <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                hub
-              </span>
-            </div>
-            <div>
-              <h1 className="text-[17px] sm:text-[18px] font-bold text-[#5300b7] tracking-tight font-headline-sm">
-                DirectFlow
-              </h1>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <span
-              className="material-symbols-outlined text-[#5300b7] text-2xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              hub
-            </span>
-            <span className="text-[17px] sm:text-[18px] font-bold text-[#5300b7] tracking-tight font-headline-sm">
-              DirectFlow
-            </span>
-          </div>
-        )}
+        <Image src="/logo.png" alt="Lokal Lens" width={230} height={40} className="h-auto w-36 sm:w-44" />
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
+        <button onClick={onLogout} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-[#4a4455] hover:bg-[#f6f2f7]" aria-label="Log out">
+          <span className="material-symbols-outlined text-[20px]">logout</span><span>Log out</span>
+        </button>
         <button
           onClick={onOpenSearch}
           aria-label="Search listings"

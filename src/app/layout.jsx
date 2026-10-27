@@ -28,7 +28,7 @@ const devanagari = Noto_Sans_Devanagari({
   preload: false,
 });
 
-export const metadata = { title: "Genesis Virtue | Business Directory", description: "Find trusted local businesses across India with Genesis Virtue." };
+export const metadata = { title: "Lokal Lens | Local Business Directory", description: "Find trusted local businesses across India with Lokal Lens." };
 
 export default function RootLayout({ children }) {
   return (

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { UserRole, OwnerTab, AdminTab, BusinessListing, Lead, Review } from './types';
-import { loadAdminDashboard, loadOwnerDashboard, reviewBusiness } from './api';
+import { loadAdminDashboard, loadOwnerDashboard, logout, reviewBusiness } from './api';
 import { Header } from './components/Header';
 import { OwnerDashboard } from './components/OwnerDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -24,6 +25,7 @@ interface DashboardAppProps {
 }
 
 export default function DashboardApp({ role }: DashboardAppProps) {
+  const router = useRouter();
   // Each route receives a fixed role. There is deliberately no role switcher.
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('business');
   const [adminTab, setAdminTab] = useState<AdminTab>('overview');
@@ -159,6 +161,7 @@ export default function DashboardApp({ role }: DashboardAppProps) {
         {/* Top App Bar Component */}
         <Header
           role={role}
+          onLogout={async () => { try { await logout(); } catch { /* Local credentials are cleared even if the API is unreachable. */ } finally { router.replace('/login'); router.refresh(); } }}
           unreadNotificationsCount={0}
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenNotifications={() => showToast('Notifications are not available from the current API.')}

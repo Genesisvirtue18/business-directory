@@ -94,7 +94,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           {filteredBusinesses.length > 0 && (
             <div className="space-y-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#7b7486] px-2 block">
-                Business Directory ({filteredBusinesses.length})
+                Businesses ({filteredBusinesses.length})
               </span>
               {filteredBusinesses.slice(0, 5).map((b) => (
                 <div

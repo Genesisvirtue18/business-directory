@@ -16,7 +16,7 @@ export async function generateMetadata({ params, searchParams }) {
   if (entry.endsWith("_BZDET")) {
     const business = await getBusiness(termSlug);
     return {
-      title: business ? `${business.name} in ${business.address?.city || displayWords(city)} | Genesis Virtue` : "Business Profile | Genesis Virtue",
+      title: business ? `${business.name} in ${business.address?.city || displayWords(city)} | Lokal Lens` : "Business Profile | Lokal Lens",
       description: business?.description || `Contact ${business?.name || displayWords(termSlug)} in ${displayWords(city)}.`,
       alternates: business ? { canonical: absoluteSiteUrl(businessDetailPath(business)) } : undefined,
       ...(!business ? { robots: { index: false, follow: false } } : {}),
@@ -27,7 +27,7 @@ export async function generateMetadata({ params, searchParams }) {
   const categoryName = category?.name || displayWords(term);
   const cityName = displayWords(city);
   return {
-    title: `${categoryName} in ${cityName} | Genesis Virtue Business Directory`,
+    title: `${categoryName} in ${cityName} | Lokal Lens`,
     description: `Find trusted ${categoryName.toLowerCase()} in ${cityName}. Compare local businesses and contact details.`,
     alternates: category ? { canonical: absoluteSiteUrl(categoryListingPath(cityName, category)) } : undefined,
     ...(!category || hasCoordinates ? { robots: { index: false, follow: Boolean(category) } } : {}),

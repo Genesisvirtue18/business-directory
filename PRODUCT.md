@@ -12,7 +12,7 @@ People searching for businesses and business owners creating or managing listing
 
 ## Product Purpose
 
-Genesis Virtue is a business listing platform. It helps people find local businesses and gives business owners a place to create and manage a listing.
+Lokal Lens is a business listing platform. It helps people find local businesses and gives business owners a place to create and manage a listing.
 
 ## Positioning
 
@@ -31,7 +31,7 @@ The current product supports public directory browsing and business profile page
 
 ## Brand Commitments
 
-Genesis Virtue is the name used by the current application. No other brand commitments have been specified.
+Lokal Lens is the name used by the current application.
 
 ## Evidence on Hand
 

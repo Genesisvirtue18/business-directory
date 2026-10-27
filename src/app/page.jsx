@@ -112,8 +112,8 @@ export default async function Home() {
 
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
           <div className="mx-auto flex min-h-[68px] max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-8">
-            <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[-1.5px] text-violet-700">
-              Genesis Virtue
+            <Link href="/" aria-label="Lokal Lens home" className="shrink-0">
+              <Image src="/logo.png" alt="Lokal Lens" width={230} height={40} priority className="h-auto w-40 sm:w-52" />
             </Link>
             <div className="flex items-center gap-2">
               <Link href="/register" className="flex h-9 items-center gap-1 rounded border border-slate-300 px-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 sm:px-3">
@@ -166,7 +166,7 @@ export default async function Home() {
           <div>
             <span className="inline-flex rounded-full border border-violet-100 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-700">For local business owners</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-4xl">Help your next local customer find you.</h2>
-            <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">Show people what you do, where to find you, and how to get in touch. Create your business profile on Genesis Virtue.</p>
+            <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">Show people what you do, where to find you, and how to get in touch. Create your business profile on Lokal Lens.</p>
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Link href="/register" className="inline-flex h-11 items-center gap-2 rounded-lg bg-violet-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-800">
                 <Plus className="h-4 w-4" />Add Your Business Now
@@ -205,7 +205,7 @@ export default async function Home() {
           }}
         >
           <h2 className="mb-8 text-center text-3xl  font-semibold">
-            How Genesis Virtue Works
+            How Lokal Lens Works
           </h2>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -293,7 +293,7 @@ export default async function Home() {
             One-stop for local businesses, services, and stores across India
           </h2>
           <p className="mt-4 max-w-6xl text-sm leading-6 text-slate-600">
-            Genesis Virtue helps you discover local businesses and services in one place. Explore categories, compare business details, and contact the business that fits your needs. Business owners can create a listing to help more people find them.
+            Lokal Lens helps you discover local businesses and services in one place. Explore categories, compare business details, and contact the business that fits your needs. Business owners can create a listing to help more people find them.
           </p>
 
         </div>
@@ -310,21 +310,10 @@ export default async function Home() {
 
       {/* Brand */}
       <div>
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 font-bold text-white shadow-lg">
-            G
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold">
-              Genesis Virtue
-            </h3>
-
-            <p className="text-xs text-slate-400">
-              Business Directory
-            </p>
-          </div>
+        <div className="inline-flex rounded-xl bg-white px-3 py-2">
+          <Image src="/logo.png" alt="Lokal Lens" width={190} height={33} className="h-auto w-40" />
         </div>
+        <p className="mt-3 text-xs text-slate-400">Local Business Listings</p>
 
         <p className="mt-5 max-w-xs text-sm leading-7 text-slate-400">
           India&apos;s trusted platform to discover, connect and grow with verified local businesses.
@@ -373,7 +362,7 @@ export default async function Home() {
             {section.links.map((link) => (
               <Link
                 key={link}
-                href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/register", "Dashboard": "/login", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/#contact", "Sitemap": "/" })[link] || "/directory")}
+                href={(({ "Home": "/", "Businesses": "/directory", "Categories": "/#categories", "Cities": "/directory", "Deals": "/#deals", "Add Business": "/register", "Dashboard": "/login", "Premium Plans": "/login", "Advertising": "/login", "About Us": "/#contact", "Contact": "/#contact", "Blog": "/#blog", "Careers": "/#contact", "Help Center": "/#contact", "Terms": "/#contact", "Privacy": "/privacy", "Sitemap": "/" })[link] || "/directory")}
                 className="block text-sm text-slate-400 transition hover:text-white"
               >
                 {link}
@@ -415,11 +404,11 @@ export default async function Home() {
     <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-slate-400 md:flex-row">
 
       <p>
-        © 2026 Genesis Virtue. All rights reserved.
+        © 2026 Lokal Lens. All rights reserved.
       </p>
 
       <div className="flex gap-6">
-        <Link href="/#contact">Privacy Policy</Link>
+        <Link href="/privacy">Privacy Policy</Link>
         <Link href="/#contact">Terms</Link>
         <Link href="/#contact">Cookies</Link>
       </div>
@@ -431,4 +420,3 @@ export default async function Home() {
     </main>
   );
 }
-
