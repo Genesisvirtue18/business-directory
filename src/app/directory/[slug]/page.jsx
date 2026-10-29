@@ -13,6 +13,14 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaWhatsapp,
+  FaYoutube,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { getBusiness } from "@/lib/api";
 import { businessDetailPath } from "@/lib/directory-data";
 import { buildBusinessJsonLd, jsonLdString } from "@/lib/business-schema";
@@ -48,6 +56,14 @@ function isImageSource(value) {
   }
 }
 
+const socialPlatforms = {
+  facebook: { icon: FaFacebookF, color: "text-[#1877f2]", background: "bg-[#eaf2ff]" },
+  instagram: { icon: FaInstagram, color: "text-[#e1306c]", background: "bg-[#fff0f5]" },
+  linkedin: { icon: FaLinkedinIn, color: "text-[#0a66c2]", background: "bg-[#eaf4ff]" },
+  youtube: { icon: FaYoutube, color: "text-[#ff0000]", background: "bg-[#fff0f0]" },
+  x: { icon: FaXTwitter, color: "text-slate-950", background: "bg-slate-100" },
+};
+
 export default async function BusinessDetailPage({ params }) {
   const { slug } = await params;
   const business = await getBusiness(slug);
@@ -76,15 +92,17 @@ export default async function BusinessDetailPage({ params }) {
     : workingHours.length ? "Hours listed" : "Hours not provided";
   const verified = business.verificationStatus === "verified";
   const contactOptions = [
-    business.phone && { icon: Phone, title: business.phone, sub: "Call business", href: `tel:${business.phone}` },
-    business.whatsapp && { icon: MessageSquare, title: business.whatsapp, sub: "WhatsApp", href: `https://wa.me/${business.whatsapp.replace(/\D/g, "")}` },
-    business.email && { icon: MessageSquare, title: business.email, sub: "Email", href: `mailto:${business.email}` },
-    business.website && { icon: Globe, title: "Website", sub: business.website, href: business.website },
+    business.phone && { icon: Phone, title: business.phone, sub: "Call business", href: `tel:${business.phone}`, iconColor: "text-violet-600", iconBackground: "bg-violet-100" },
+    business.whatsapp && { icon: FaWhatsapp, title: business.whatsapp, sub: "WhatsApp", href: `https://wa.me/${business.whatsapp.replace(/\D/g, "")}`, iconColor: "text-[#25d366]", iconBackground: "bg-[#e9fbf0]" },
+    business.email && { icon: MessageSquare, title: business.email, sub: "Email", href: `mailto:${business.email}`, iconColor: "text-violet-600", iconBackground: "bg-violet-100" },
+    business.website && { icon: Globe, title: "Website", sub: business.website, href: business.website, iconColor: "text-violet-600", iconBackground: "bg-violet-100" },
     ...Object.entries(business.socialLinks || {}).filter(([, url]) => url).map(([platform, url]) => ({
-      icon: Globe,
+      icon: socialPlatforms[platform.toLowerCase()]?.icon || Globe,
       title: `Follow on ${platform}`,
       sub: platform,
       href: url,
+      iconColor: socialPlatforms[platform.toLowerCase()]?.color || "text-violet-600",
+      iconBackground: socialPlatforms[platform.toLowerCase()]?.background || "bg-violet-100",
     })),
   ].filter(Boolean);
   const coordinates = business.location?.coordinates;
@@ -274,9 +292,9 @@ export default async function BusinessDetailPage({ params }) {
             <section className="rounded-2xl border border-slate-200/90 bg-white p-3 shadow-[0_2px_8px_rgba(15,23,42,0.025)]">
               <h2 className="mb-2 px-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">Verified Contacts</h2>
               {contactOptions.length ? <div className="space-y-1.5">
-                {contactOptions.map(({ icon: Icon, title, sub, href }) => (
+                {contactOptions.map(({ icon: Icon, title, sub, href, iconColor, iconBackground }) => (
                   <a key={`${sub}-${title}`} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined} className="flex min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-2.5 py-2 hover:border-violet-200">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600"><Icon className="h-3.5 w-3.5" /></span>
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconBackground} ${iconColor}`}><Icon className="h-3.5 w-3.5" /></span>
                     <span className="min-w-0 flex-1"><span className="block truncate text-[9px] text-slate-500">{sub}</span><span className="block truncate text-[10px] font-semibold text-slate-900">{title}</span></span>
                     <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                   </a>
