@@ -1,4 +1,4 @@
-import { BusinessListing, Review } from './types';
+import { BusinessListing, Lead, Review } from './types';
 
 type ApiReview = {
   _id?: string;
@@ -7,6 +7,20 @@ type ApiReview = {
   createdAt?: string;
   comment?: string;
   isVerified?: boolean;
+};
+
+type ApiLead = {
+  _id?: string;
+  id?: string;
+  name?: string;
+  phone?: string;
+  email?: string;
+  service?: string;
+  status?: string;
+  createdAt?: string;
+  message?: string;
+  notes?: string[];
+  business?: { name?: string };
 };
 
 type ApiBusiness = {
@@ -45,7 +59,35 @@ export async function logout() { const refreshToken = typeof window === 'undefin
 const ago = (value?: string) => value ? new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(Math.round((new Date(value).getTime() - Date.now()) / 86400000), 'day') : 'Recently';
 const reviewStats = (item: ApiBusiness) => { const ratings = (item.reviews || []).map((review) => Number(review.rating)).filter((rating) => Number.isFinite(rating) && rating >= 1 && rating <= 5); return ratings.length ? { average: Number((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(2)), count: ratings.length } : { average: Number(item.averageRating || 0), count: Number(item.reviewCount || 0) }; };
 export const toDashboardBusiness = (item: ApiBusiness): BusinessListing => { const stats = reviewStats(item); return ({ id: item._id || item.id || '', name: item.name || 'Business', owner: item.owner?.name || 'Business owner', category: (item.category?.name || 'Services') as BusinessListing['category'], location: [item.address?.locality, item.address?.city, item.address?.state].filter(Boolean).join(', ') || 'Location not added', phone: item.phone || 'Not added', alternatePhone: item.alternatePhone, whatsapp: item.whatsapp, email: item.email, website: item.website, logo: item.logo, images: item.images || [], services: item.services || [], address: item.address || {}, workingHours: item.workingHours || [], status: item.listingStatus === 'published' ? 'Active' : item.listingStatus === 'rejected' ? 'Rejected' : item.listingStatus === 'pending_review' ? 'Pending' : item.listingStatus === 'suspended' ? 'Suspended' : 'Draft', timeAgo: ago(item.createdAt), rating: stats.average, averageRating: stats.average, reviewsCount: stats.count, views: Number(item.viewCount || 0), enquiries: Number(item.leadCount || 0), verified: item.verificationStatus === 'verified', googlePlaceVerificationStatus: item.googlePlaceVerificationStatus || 'unverified', description: item.description || '' }); };
-export async function loadOwnerDashboard(): Promise<{ businesses: BusinessListing[]; reviews: Review[] }> { const { items = [] } = await request('/owner/businesses?limit=100'); return { businesses: (items as ApiBusiness[]).map(toDashboardBusiness), reviews: (items as ApiBusiness[]).flatMap((business) => (business.reviews || []).map((review): Review => ({ id: review._id || '', author: review.reviewerName || 'Customer', rating: Number(review.rating || 0), timeAgo: ago(review.createdAt), comment: review.comment || '', verified: Boolean(review.isVerified) }))) }; }
+export async function loadOwnerDashboard(): Promise<{ businesses: BusinessListing[]; reviews: Review[]; leads: Lead[] }> {
+  const [{ items: businesses = [] }, { items: leads = [] }] = await Promise.all([
+    request('/owner/businesses?limit=100'),
+    request('/owner/leads?limit=100'),
+  ]);
+  return {
+    businesses: (businesses as ApiBusiness[]).map(toDashboardBusiness),
+    reviews: (businesses as ApiBusiness[]).flatMap((business) => (business.reviews || []).map((review): Review => ({ id: review._id || '', author: review.reviewerName || 'Customer', rating: Number(review.rating || 0), timeAgo: ago(review.createdAt), comment: review.comment || '', verified: Boolean(review.isVerified) }))),
+    leads: (leads as ApiLead[]).map((lead): Lead => ({
+      id: lead._id || lead.id || '',
+      name: lead.name || 'Customer',
+      phone: lead.phone || '',
+      email: lead.email,
+      service: lead.service,
+      status: lead.status === 'contacted' ? 'Contacted' : lead.status === 'converted' ? 'Converted' : 'New',
+      timestamp: ago(lead.createdAt),
+      message: lead.message || '',
+      notes: lead.notes || [],
+      targetBusiness: lead.business?.name || 'Business',
+    })),
+  };
+}
+export async function updateOwnerLeadStatus(id: string, status: Lead['status']) {
+  const statusValue: Record<Lead['status'], 'new' | 'contacted' | 'converted'> = { New: 'new', Contacted: 'contacted', Converted: 'converted' };
+  await request(`/owner/leads/${id}`, { method: 'PATCH', body: JSON.stringify({ status: statusValue[status] }) });
+}
+export async function addOwnerLeadNote(id: string, note: string) {
+  await request(`/owner/leads/${id}/notes`, { method: 'POST', body: JSON.stringify({ note }) });
+}
 export async function loadAdminDashboard(): Promise<BusinessListing[]> { const { items = [] } = await request('/admin/businesses?limit=100'); return items.map(toDashboardBusiness); }
 export async function reviewBusiness(id: string, decision: 'approve' | 'reject', rejectionReason?: string) { const { item } = await request(`/admin/businesses/${id}/review`, { method: 'PATCH', body: JSON.stringify({ decision, ...(rejectionReason ? { rejectionReason } : {}) }) }); return toDashboardBusiness(item); }
 export async function clearGooglePlaceMismatch(id: string) { const { item } = await request(`/admin/businesses/${id}/google-place`, { method: 'PATCH' }); return toDashboardBusiness(item); }

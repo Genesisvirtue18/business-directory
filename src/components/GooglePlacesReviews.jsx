@@ -50,10 +50,10 @@ export default function GooglePlacesReviews({ businessId }) {
 
   const data = state.data;
   const googleMapsUrl = data?.mapsUri;
-  return <section ref={section} id="google-reviews" className="scroll-mt-32 rounded-lg border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="google-reviews-heading">
+  return <section ref={section} id="google-reviews" className="scroll-mt-32 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="google-reviews-heading">
     <div className="mb-4">
-      <h2 id="google-reviews-heading" className="text-xl font-semibold text-slate-900">Google Reviews</h2>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Reviews from Google</p>
+      <h2 id="google-reviews-heading" className="text-xl font-semibold tracking-tight text-slate-950">Google Reviews</h2>
+      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Reviews from Google</p>
     </div>
     {state.status === 'idle' && <p className="text-sm text-slate-600">Google review information loads when you open this section.</p>}
     {state.status === 'loading' && <p className="text-sm text-slate-600" role="status">Loading Google review information…</p>}
@@ -65,9 +65,9 @@ export default function GooglePlacesReviews({ businessId }) {
       {data?.status === 'no_data' && <p className="text-sm text-slate-600">Google has no rating information available for this listing.</p>}
       {data?.status === 'no_data' && data.mapsUri && <a href={data.mapsUri} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold text-violet-700 hover:underline">Open this listing on Google Maps ↗</a>}
       {data?.available && <>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div className="flex items-center gap-3">
-            {data.rating !== null && <span className="text-2xl font-bold text-slate-900">{Number(data.rating).toFixed(1)}</span>}
+            {data.rating !== null && <span className="text-3xl font-semibold tracking-tight tabular-nums text-slate-950">{Number(data.rating).toFixed(1)}</span>}
             <div>
               {data.rating !== null && <RatingStars rating={data.rating} />}
               <p className="mt-1 text-xs text-slate-500">{Number(data.ratingCount || 0).toLocaleString()} Google ratings</p>
@@ -75,7 +75,7 @@ export default function GooglePlacesReviews({ businessId }) {
           </div>
           {googleMapsUrl && <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-violet-700 hover:underline">Read on Google Maps ↗</a>}
         </div>
-        {data.reviews?.length ? <div className="mt-4 grid gap-3 md:grid-cols-2">{data.reviews.map((review, index) => <article key={`${review.author?.displayName || 'review'}-${index}`} className="rounded-lg border border-slate-200 p-4">
+        {data.reviews?.length ? <div className="mt-5 grid gap-3 md:grid-cols-2">{data.reviews.map((review, index) => <article key={`${review.author?.displayName || 'review'}-${index}`} className="rounded-xl border border-slate-200 p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               {review.author?.uri ? <a href={review.author.uri} target="_blank" rel="noopener noreferrer" className="truncate text-sm font-semibold text-slate-900 hover:underline">{review.author.displayName || 'Google user'}</a> : <h3 className="truncate text-sm font-semibold text-slate-900">{review.author?.displayName || 'Google user'}</h3>}
@@ -87,6 +87,6 @@ export default function GooglePlacesReviews({ businessId }) {
         </article>)}</div> : <p className="mt-4 text-sm text-slate-600">{data.mode === 'rating' ? 'Review text is not enabled for this listing.' : 'Google has not provided review text for this listing.'}</p>}
       </>}
     </>}
-    <p className="mt-4 text-xs text-slate-500">Google ratings and reviews are provided by Google and are separate from Lokal Lens customer reviews. Google may provide only a limited selection of reviews.</p>
+    <p className="mt-4 text-xs leading-5 text-slate-500">Google provides these ratings and reviews. Only a limited selection may be available.</p>
   </section>;
 }

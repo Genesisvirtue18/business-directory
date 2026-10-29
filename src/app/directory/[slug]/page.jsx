@@ -11,9 +11,7 @@ import {
   Phone,
   Search,
   Plus,
-  Star,
   ShieldCheck,
-  Users,
   ChevronRight
 } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +20,8 @@ import { businessDetailPath, toDirectoryBusiness } from "@/lib/directory-data";
 import { buildBusinessJsonLd, jsonLdString } from "@/lib/business-schema";
 import BusinessServices from "@/components/BusinessServices";
 import GooglePlacesReviews from "@/components/GooglePlacesReviews";
+import BusinessActivityStats from "@/components/BusinessActivityStats";
+import BusinessContactForm from "@/components/BusinessContactForm";
 
 function SectionCard({
   title,
@@ -37,13 +37,13 @@ function SectionCard({
         noCard
           ? className
           : [
-              "rounded-lg border border-slate-200 bg-white p-5 shadow-sm",
+              "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm",
               className,
             ].join(" ")
       }
     >
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-slate-950">{title}</h2>
       </div>
       {children}
     </section>
@@ -76,12 +76,6 @@ export default async function BusinessDetailPage({ params }) {
     business.website && { icon: Globe, title: business.website, sub: "Visit Website", href: business.website },
     ...Object.entries(business.socialLinks || {}).filter(([, url]) => url).map(([platform, url]) => ({ icon: Globe, title: platform, sub: `Follow on ${platform}`, href: url })),
   ].filter(Boolean);
-  const detailStats = [
-    { value: business.viewCount || 0, label: "Profile Views", icon: Users },
-    { value: business.leadCount || 0, label: "Customer Leads", icon: ShieldCheck },
-  ];
-  const reviews = Array.isArray(business.reviews) ? business.reviews : [];
-  const averageRating = Number(business.averageRating) || (reviews.length ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length : 0);
   const directionsUrl = business.location?.coordinates ? `https://www.google.com/maps/search/?api=1&query=${business.location.coordinates[1]},${business.location.coordinates[0]}` : undefined;
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
@@ -186,35 +180,40 @@ export default async function BusinessDetailPage({ params }) {
             </section>
 
             {/* --- BUSINESS OVERVIEW --- */}
-            <section id="overview" className="scroll-mt-32 rounded-[8px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-              <div className="grid gap-6 p-5 lg:grid-cols-[1.25fr_0.75fr]">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">
+            <section id="overview" className="scroll-mt-32 rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="grid gap-6 p-6 sm:p-7 lg:grid-cols-[minmax(0,1.4fr)_minmax(250px,0.8fr)]">
+                <div className="py-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-700">Business overview</p>
+                  <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
                     About {business.name}
-                  </h3>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+                  </h2>
+                  <p className="mt-3 max-w-3xl whitespace-pre-line text-[15px] leading-7 text-slate-600">
                     {business.description || "This business has not added a description yet."}
                   </p>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {highlights.length > 0 && <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
                     {highlights.map((item) => (
-                      <div
+                      <li
                         key={item}
-                        className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                        className="flex min-w-0 items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3 text-sm leading-5 text-slate-700"
                       >
-                        <ShieldCheck className="h-4 w-4 text-violet-600" />
-                        {item}
-                      </div>
+                        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-violet-600" />
+                        <span>{item}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>}
                 </div>
 
-                <div className="rounded-[8px] bg-violet-50 p-6 text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-white text-violet-600 shadow-sm">
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-indigo-50 p-7 text-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-violet-700 shadow-sm ring-1 ring-violet-100">
                     <BadgeCheck className="h-8 w-8" />
                   </div>
-                  <p className="mt-5 text-[22px] font-semibold text-violet-700">{categoryName}</p>
-                  {business.verificationStatus === "verified" ? <p className="mt-2 text-sm leading-6 text-slate-600">Verified listing</p> : null}
+                  <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Category</p>
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-violet-800">{categoryName}</p>
+                  <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600">
+                    <span className={`h-1.5 w-1.5 rounded-full ${business.verificationStatus === "verified" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                    {business.verificationStatus === "verified" ? "Verified business" : "Business listing"}
+                  </p>
                 </div>
               </div>
             </section>
@@ -222,21 +221,12 @@ export default async function BusinessDetailPage({ params }) {
             {/* --- SERVICES --- */}
             <BusinessServices services={business.services || []} />
 
-            {/* --- REVIEWS --- */}
-            <SectionCard id="reviews" title="Customer Reviews" className="scroll-mt-32">
-              <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
-                <p className="text-3xl font-bold text-slate-900">{averageRating.toFixed(1)}</p>
-                <div><div className="flex items-center gap-0.5 text-amber-400" aria-label={`${averageRating.toFixed(1)} out of 5 stars`}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className={`h-4 w-4 ${index < Math.round(averageRating) ? "fill-current" : "text-slate-200"}`} />)}</div><p className="mt-1 text-xs text-slate-500">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</p></div>
-              </div>
-              {reviews.length ? <div className="mt-4 grid gap-3 md:grid-cols-2">{reviews.map((review, index) => <article key={review._id || `${review.reviewerName}-${index}`} className="rounded-lg border border-slate-200 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-semibold text-slate-900">{review.reviewerName}</h3><div className="mt-1 flex items-center gap-0.5 text-amber-400">{Array.from({ length: 5 }, (_, starIndex) => <Star key={starIndex} className={`h-3.5 w-3.5 ${starIndex < Number(review.rating) ? "fill-current" : "text-slate-200"}`} />)}</div></div><span className="text-xs text-slate-500">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</span></div>{review.comment ? <p className="mt-3 text-sm leading-6 text-slate-600">{review.comment}</p> : null}{review.isVerified ? <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-emerald-700"><BadgeCheck className="h-3.5 w-3.5" />Verified review</span> : null}</article>)}</div> : <p className="mt-4 text-sm text-slate-500">No reviews yet.</p>}
-            </SectionCard>
-
             <GooglePlacesReviews key={String(business._id || business.id || '')} businessId={String(business._id || business.id || '')} />
 
             {/* --- 3 COLUMN INFO CARDS --- */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <SectionCard title="Business Information">
-                <div className="space-y-4 text-sm text-slate-600">
+                <div className="space-y-4 text-sm leading-6 text-slate-600">
                   <div className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 text-violet-600" />
                     <span>{address || "Address not provided"}</span>
@@ -283,45 +273,7 @@ export default async function BusinessDetailPage({ params }) {
           <aside className="space-y-8">
             <section className="space-y-4">
               {/* Contact Form */}
-              <div className="rounded-[8px] border border-slate-200 bg-white p-4">
-                <div className="mb-3">
-                  <h2 className="text-base font-semibold text-slate-900">
-                    Contact Business
-                  </h2>
-                  <p className="text-xs text-slate-500">Contact {business.name}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm outline-none focus:border-violet-500"
-                  />
-                  <select className="h-10 w-full rounded-[8px] border border-slate-200 px-3 text-sm text-slate-600 outline-none focus:border-violet-500">
-                    <option>Select Service</option>
-                    {business.services?.map((service) => <option key={service}>{service}</option>)}
-                  </select>
-                  <textarea
-                    rows={3}
-                    placeholder="Your Message"
-                    className="w-full resize-none rounded-[8px] border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500"
-                  />
-                </div>
-
-                <button className="mt-3 h-10 w-full rounded-[8px] bg-violet-600 text-sm font-medium text-white hover:bg-violet-700">
-                  Send Message
-                </button>
-              </div>
+              <BusinessContactForm businessId={String(business._id || business.id || '')} businessName={business.name} services={business.services || []} />
 
               {/* Contact Options */}
               <div className="space-y-3">
@@ -369,22 +321,7 @@ export default async function BusinessDetailPage({ params }) {
             </section>
 
             {/* Stats */}
-            <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-              {detailStats.map(({ value, label, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 rounded-lg border border-slate-200 px-4 py-3"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{value}</p>
-                    <p className="text-xs text-slate-500">{label}</p>
-                  </div>
-                </div>
-              ))}
-            </section>
+            <BusinessActivityStats key={String(business._id || business.id || '')} businessId={String(business._id || business.id || '')} initialViews={business.viewCount || 0} initialLeads={business.leadCount || 0} />
           </aside>
         </div>
 

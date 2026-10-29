@@ -12,6 +12,7 @@ const sections = [
     paragraphs: [
       "When you create or use an account, we may process your name, email address, phone number, account credentials, and account activity. Passwords are stored as password hashes, not as plain text.",
       "If you create or manage a business listing, we process the information you provide, which may include the business name, description, address, location, contact details, services, opening hours, photos, and related listing content. Published listing details are visible to the public.",
+      "If you send an inquiry through a business profile, we collect the name and phone number you provide, along with any optional email or service selection and your message. The inquiry is stored in the platform and made available to the owner of the business you contacted.",
       "If you choose to use location features, your browser may ask for permission to provide your device location. With permission, Lokal Lens uses coordinates to help find nearby businesses and may save them in your browser storage for later visits. You can remove saved location data from your browser storage or revoke location permission in your browser settings.",
       "We also receive technical information needed to operate and protect the service, such as request, device, and security information handled by our application and infrastructure.",
     ],

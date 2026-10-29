@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRole, OwnerTab, AdminTab, BusinessListing, Lead, Review } from './types';
-import { clearGooglePlaceMismatch, loadAdminDashboard, loadOwnerDashboard, logout, reviewBusiness } from './api';
+import { addOwnerLeadNote, clearGooglePlaceMismatch, loadAdminDashboard, loadOwnerDashboard, logout, reviewBusiness, updateOwnerLeadStatus } from './api';
 import { Header } from './components/Header';
 import { OwnerDashboard } from './components/OwnerDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -37,7 +37,7 @@ export default function DashboardApp({ role }: DashboardAppProps) {
 
   // Leads & Reviews state
   const [ownerLeads, setOwnerLeads] = useState<Lead[]>([]);
-  const [adminLeads, setAdminLeads] = useState<Lead[]>([]);
+  const [adminLeads] = useState<Lead[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -47,7 +47,7 @@ export default function DashboardApp({ role }: DashboardAppProps) {
     (async () => { try {
       setLoading(true); setLoadError('');
       if (role === 'admin') { const items = await loadAdminDashboard(); if (live) { setPendingBusinesses(items.filter((item) => item.status === 'Pending')); setActiveBusinesses(items.filter((item) => item.status !== 'Pending')); } }
-      else { const data = await loadOwnerDashboard(); if (live) { setActiveBusinesses(data.businesses); setReviews(data.reviews); } }
+      else { const data = await loadOwnerDashboard(); if (live) { setActiveBusinesses(data.businesses); setReviews(data.reviews); setOwnerLeads(data.leads); } }
     } catch (error) { if (live) setLoadError(error instanceof Error ? error.message : 'Unable to load dashboard data'); } finally { if (live) setLoading(false); } })();
     return () => { live = false; };
   }, [role]);
@@ -108,11 +108,10 @@ export default function DashboardApp({ role }: DashboardAppProps) {
     setIsBusinessFormOpen(true);
   };
 
-  const handleUpdateLeadStatus = (leadId: string, newStatus: Lead['status']) => {
+  const handleUpdateLeadStatus = async (leadId: string, newStatus: Lead['status']) => {
+    try { await updateOwnerLeadStatus(leadId, newStatus); }
+    catch (error) { showToast(error instanceof Error ? error.message : 'Unable to update inquiry status'); return; }
     setOwnerLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
-    );
-    setAdminLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
     );
     if (selectedLead && selectedLead.id === leadId) {
@@ -121,13 +120,14 @@ export default function DashboardApp({ role }: DashboardAppProps) {
     showToast(`Lead status updated to "${newStatus}"`);
   };
 
-  const handleAddLeadNote = (leadId: string, note: string) => {
+  const handleAddLeadNote = async (leadId: string, note: string) => {
+    try { await addOwnerLeadNote(leadId, note); }
+    catch (error) { showToast(error instanceof Error ? error.message : 'Unable to save follow-up note'); return; }
     const updater = (prev: Lead[]) =>
       prev.map((l) =>
         l.id === leadId ? { ...l, notes: [...(l.notes || []), note] } : l
       );
     setOwnerLeads(updater);
-    setAdminLeads(updater);
     if (selectedLead && selectedLead.id === leadId) {
       setSelectedLead((prev) =>
         prev ? { ...prev, notes: [...(prev.notes || []), note] } : null

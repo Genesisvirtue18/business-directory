@@ -90,6 +90,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
                   <span className="material-symbols-outlined text-xs">call</span>
                   {lead.phone}
                 </a>
+                {lead.email && <a href={`mailto:${lead.email}`} className="mt-1 block text-[12px] text-[#5300b7] hover:underline">{lead.email}</a>}
                 <p className="text-[11px] text-[#7b7486] mt-0.5">Logged {lead.timestamp}</p>
               </div>
             </div>
@@ -114,6 +115,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
               Customer Message / Inquiry
             </span>
             <p className="text-[13px] text-[#1b1b1e] italic leading-relaxed">&quot;{lead.message}&quot;</p>
+            {lead.service && <p className="mt-2 text-[12px] text-[#4a4455]">Service requested: {lead.service}</p>}
             <p className="text-[11px] text-[#7b7486] mt-2">Target Storefront: {lead.targetBusiness}</p>
           </div>
 

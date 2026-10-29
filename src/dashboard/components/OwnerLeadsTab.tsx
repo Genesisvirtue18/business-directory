@@ -21,7 +21,8 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
       search &&
       !l.name.toLowerCase().includes(search.toLowerCase()) &&
       !l.message.toLowerCase().includes(search.toLowerCase()) &&
-      !l.phone.includes(search)
+      !l.phone.includes(search) &&
+      !(l.email || '').toLowerCase().includes(search.toLowerCase())
     ) {
       return false;
     }
@@ -43,7 +44,7 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
               Leads CRM &amp; Inquiries
             </h2>
             <p className="text-[12px] text-[#7b7486]">
-              {leads.length} high-intent patient inquiries recorded
+              {leads.length} customer {leads.length === 1 ? 'inquiry' : 'inquiries'} received
             </p>
           </div>
         </div>
@@ -99,7 +100,7 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
                 </div>
                 <div>
                   <h4 className="font-bold text-[14px] text-[#1b1b1e]">{lead.name}</h4>
-                  <p className="text-[12px] text-[#5300b7]">{lead.phone}</p>
+                  <p className="text-[12px] text-[#5300b7]">{lead.phone}{lead.email ? ` · ${lead.email}` : ''}</p>
                 </div>
               </div>
               <span
@@ -118,6 +119,7 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
             <p className="mt-2 text-[12px] italic text-[#4a4455] bg-[#fbf8fc] p-2 rounded border border-[#ccc3d7]/50">
               &quot;{lead.message}&quot;
             </p>
+            {lead.service && <p className="mt-2 text-[11px] text-[#7b7486]">Service: {lead.service}</p>}
 
             <div className="mt-2 flex items-center justify-between text-[11px] text-[#7b7486]">
               <span>{lead.timestamp}</span>
@@ -127,6 +129,11 @@ export const OwnerLeadsTab: React.FC<OwnerLeadsTabProps> = ({
             </div>
           </div>
         ))}
+        {!filtered.length && <div className="rounded-xl border border-dashed border-[#ccc3d7] bg-white px-5 py-10 text-center">
+          <span className="material-symbols-outlined text-3xl text-[#7b7486]">mark_email_unread</span>
+          <p className="mt-2 text-sm font-semibold text-[#1b1b1e]">{leads.length ? 'No inquiries match this filter.' : 'No inquiries yet'}</p>
+          <p className="mt-1 text-xs text-[#7b7486]">{leads.length ? 'Try another status or search term.' : 'Customer contact-form submissions will appear here.'}</p>
+        </div>}
       </div>
     </main>
   );
