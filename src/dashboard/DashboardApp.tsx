@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRole, OwnerTab, AdminTab, BusinessListing, Lead, Review } from './types';
-import { loadAdminDashboard, loadOwnerDashboard, logout, reviewBusiness } from './api';
+import { clearGooglePlaceMismatch, loadAdminDashboard, loadOwnerDashboard, logout, reviewBusiness } from './api';
 import { Header } from './components/Header';
 import { OwnerDashboard } from './components/OwnerDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -89,6 +89,15 @@ export default function DashboardApp({ role }: DashboardAppProps) {
       setActiveBusinesses((prev) => [rejected, ...prev.filter(item => item.id !== bizId)]);
       showToast(`Listing "${biz.name}" was rejected.`);
     } catch (error) { showToast(error instanceof Error ? error.message : 'Unable to reject this listing'); }
+  };
+
+  const handleClearGooglePlaceMismatch = async (bizId: string) => {
+    try {
+      const updated = await clearGooglePlaceMismatch(bizId);
+      setPendingBusinesses(prev => prev.map(item => item.id === bizId ? updated : item));
+      setActiveBusinesses(prev => prev.map(item => item.id === bizId ? updated : item));
+      showToast(`Mismatched Google Place ID cleared for "${updated.name}".`);
+    } catch (error) { showToast(error instanceof Error ? error.message : 'Unable to clear the mismatched Google Place ID'); }
   };
 
   const handleEditBusiness = () => {
@@ -264,7 +273,12 @@ export default function DashboardApp({ role }: DashboardAppProps) {
                 onInspectBusiness={(b) => setPublicProfileBiz(b)}
                 onApproveBusiness={handleApproveBusiness}
                 onRejectBusiness={handleRejectBusiness}
+                onClearGooglePlaceMismatch={handleClearGooglePlaceMismatch}
                 onBackToOverview={() => setAdminTab('overview')}
+                onBusinessesImported={(businesses) => {
+                  setActiveBusinesses((items) => [...businesses, ...items.filter(item => !businesses.some(imported => imported.id === item.id))]);
+                  if (businesses.length) showToast(`${businesses.length} business${businesses.length === 1 ? '' : 'es'} imported as drafts.`);
+                }}
               />
             ) : adminTab === 'leads' ? (
               <OwnerLeadsTab

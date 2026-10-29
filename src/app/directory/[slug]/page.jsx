@@ -17,10 +17,11 @@ import {
   ChevronRight
 } from "lucide-react";
 import Link from "next/link";
-import { getBusiness, getBusinesses, getGoogleReviews } from "@/lib/api";
+import { getBusiness, getBusinesses } from "@/lib/api";
 import { businessDetailPath, toDirectoryBusiness } from "@/lib/directory-data";
 import { buildBusinessJsonLd, jsonLdString } from "@/lib/business-schema";
 import BusinessServices from "@/components/BusinessServices";
+import GooglePlacesReviews from "@/components/GooglePlacesReviews";
 
 function SectionCard({
   title,
@@ -49,9 +50,8 @@ function SectionCard({
   );
 }
 
-export default async function BusinessDetailPage({ params, searchParams }) {
+export default async function BusinessDetailPage({ params }) {
   const { slug } = await params;
-  const query = await searchParams;
   const business = await getBusiness(slug);
   const { items: relatedItems = [] } = await getBusinesses({ limit: 5 });
   if (!business) {
@@ -83,8 +83,6 @@ export default async function BusinessDetailPage({ params, searchParams }) {
   const reviews = Array.isArray(business.reviews) ? business.reviews : [];
   const averageRating = Number(business.averageRating) || (reviews.length ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length : 0);
   const directionsUrl = business.location?.coordinates ? `https://www.google.com/maps/search/?api=1&query=${business.location.coordinates[1]},${business.location.coordinates[0]}` : undefined;
-  const google = await getGoogleReviews(slug, query?.googlePage);
-  const googleMapsUrl = google.mapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([business.name, address].filter(Boolean).join(', '))}`;
   return (
     <main className="min-h-screen bg-[#f5f7fc] text-slate-950">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(businessSchema) }} />
@@ -233,12 +231,7 @@ export default async function BusinessDetailPage({ params, searchParams }) {
               {reviews.length ? <div className="mt-4 grid gap-3 md:grid-cols-2">{reviews.map((review, index) => <article key={review._id || `${review.reviewerName}-${index}`} className="rounded-lg border border-slate-200 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-semibold text-slate-900">{review.reviewerName}</h3><div className="mt-1 flex items-center gap-0.5 text-amber-400">{Array.from({ length: 5 }, (_, starIndex) => <Star key={starIndex} className={`h-3.5 w-3.5 ${starIndex < Number(review.rating) ? "fill-current" : "text-slate-200"}`} />)}</div></div><span className="text-xs text-slate-500">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</span></div>{review.comment ? <p className="mt-3 text-sm leading-6 text-slate-600">{review.comment}</p> : null}{review.isVerified ? <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-emerald-700"><BadgeCheck className="h-3.5 w-3.5" />Verified review</span> : null}</article>)}</div> : <p className="mt-4 text-sm text-slate-500">No reviews yet.</p>}
             </SectionCard>
 
-            <SectionCard id="google-reviews" title="Google Reviews" className="scroll-mt-32">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Reviews from Google</p>{google.available ? <div className="mt-2 flex items-center gap-3"><span className="text-2xl font-bold text-slate-900">{Number(google.averageRating || 0).toFixed(1)}</span><div><div className="flex gap-0.5 text-amber-400" aria-label={`${google.averageRating} out of 5 stars`}>{Array.from({ length: 5 }, (_, i) => <Star key={i} className={`h-4 w-4 ${i < Math.round(Number(google.averageRating || 0)) ? 'fill-current' : 'text-slate-200'}`} />)}</div><p className="mt-1 text-xs text-slate-500">{google.totalReviewCount || 0} Google reviews</p></div></div> : <p className="mt-1 text-sm text-slate-600">Google reviews are not available for this listing yet.</p>}</div><a href={googleMapsUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-violet-700 hover:underline">Read all reviews on Google ↗</a></div>
-              {google.available && google.reviews?.length ? <div className="grid gap-3 md:grid-cols-2">{google.reviews.map((review, index) => <article key={`${review.createTime || 'review'}-${index}`} className="rounded-lg border border-slate-200 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-slate-900">{review.name || 'Google user'}</h3><div className="mt-1 flex gap-0.5 text-amber-400" aria-label={`${review.rating} out of 5 stars`}>{Array.from({ length: 5 }, (_, i) => <Star key={i} className={`h-3.5 w-3.5 ${i < Number(review.rating || 0) ? 'fill-current' : 'text-slate-200'}`} />)}</div></div><span className="shrink-0 text-xs text-slate-500">{review.createTime ? new Date(review.createTime).toLocaleDateString() : ''}</span></div>{review.comment ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{review.comment}</p> : null}</article>)}</div> : null}
-              {google.available && google.nextPageToken ? <a href={`/directory/${encodeURIComponent(slug)}?googlePage=${encodeURIComponent(google.nextPageToken)}#google-reviews`} className="mt-4 inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">More Google reviews</a> : null}
-              <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><span className="inline-flex h-5 w-5 items-center justify-center rounded bg-white font-bold text-blue-600" aria-hidden="true">G</span>Google</p>
-            </SectionCard>
+            <GooglePlacesReviews key={String(business._id || business.id || '')} businessId={String(business._id || business.id || '')} />
 
             {/* --- 3 COLUMN INFO CARDS --- */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

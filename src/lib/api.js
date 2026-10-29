@@ -17,11 +17,9 @@ export const getCategories = (query) => request("/categories", query);
 export const getCities = (query) => request("/locations/cities", query);
 export const getBusinessCities = () => request("/locations/business-cities");
 export async function getBusiness(slug) { const { item } = await request(`/businesses/${encodeURIComponent(slug)}`); return item; }
-export async function getGoogleReviews(slug, pageToken) {
-  const query = new URLSearchParams({ pageSize: '10' }); if (pageToken) query.set('pageToken', pageToken);
-  try {
-    const response = await fetch(`${baseUrl}/businesses/${encodeURIComponent(slug)}/google-reviews?${query}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
-    if (!response.ok) return {};
-    const body = await response.json(); return body.data || {};
-  } catch { return {}; }
+export async function getGoogleReviews(id, signal) {
+  const response = await fetch(`${baseUrl}/businesses/${encodeURIComponent(id)}/google-reviews`, { cache: "no-store", signal: signal || AbortSignal.timeout(10000) });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.message || "Unable to load Google review information");
+  return body.data?.google;
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { importBusinessesCsv } from '../api';
 import { BusinessListing } from '../types';
 
 interface AdminBusinessesTabProps {
@@ -7,7 +8,9 @@ interface AdminBusinessesTabProps {
   onInspectBusiness: (biz: BusinessListing) => void;
   onApproveBusiness: (id: string) => void;
   onRejectBusiness: (id: string, reason?: string) => void;
+  onClearGooglePlaceMismatch: (id: string) => void;
   onBackToOverview: () => void;
+  onBusinessesImported: (businesses: BusinessListing[]) => void;
 }
 
 export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
@@ -16,15 +19,38 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
   onInspectBusiness,
   onApproveBusiness,
   onRejectBusiness,
+  onClearGooglePlaceMismatch,
   onBackToOverview,
+  onBusinessesImported,
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [importResult, setImportResult] = useState<{ createdCount: number; failed: { row: number; businessName: string; message: string }[] } | null>(null);
 
   const allListings = [...pendingBusinesses, ...activeBusinesses];
   const categories = ['All', ...new Set(allListings.map(item => item.category))];
+
+  const importFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setImportError('');
+    setImportResult(null);
+    try {
+      const result = await importBusinessesCsv(file);
+      setImportResult({ createdCount: result.createdCount, failed: result.failed });
+      onBusinessesImported(result.businesses);
+    } catch (reason) {
+      setImportError(reason instanceof Error ? reason.message : 'Unable to import business CSV');
+    } finally {
+      setImporting(false);
+      event.target.value = '';
+    }
+  };
 
   const filtered = allListings.filter((b) => {
     if (filterCategory !== 'All' && b.category !== filterCategory) return false;
@@ -61,6 +87,33 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
         </div>
 
       </div>
+
+      <section className="rounded-xl border border-[#ccc3d7] bg-white p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="text-[15px] font-bold text-[#1b1b1e]">Bulk upload businesses</h3>
+            <p className="mt-1 max-w-3xl text-[12px] text-[#7b7486]">
+              Import up to 500 draft listings at a time. Required fields: business name, owner email, category, description, services, phone, email, address line 1, city, and state. Use pipe separators (|) for lists and download the sample for all supported columns.
+            </p>
+          </div>
+          <a href="/business-upload-template.csv" download className="rounded-lg border border-[#5300b7] px-3 py-2 text-[12px] font-semibold text-[#5300b7] hover:bg-[#f7f1ff]">
+            Download CSV template
+          </a>
+        </div>
+        <label className="mt-3 block text-[12px] font-medium text-[#4a4455]">
+          Select a business CSV
+          <input type="file" accept=".csv,text/csv" disabled={importing} onChange={event => void importFile(event)} className="mt-1 block w-full text-[12px] file:mr-3 file:rounded-lg file:border-0 file:bg-[#5300b7] file:px-3 file:py-2 file:font-semibold file:text-white disabled:opacity-50" />
+        </label>
+        {importing && <p role="status" className="mt-3 text-[12px] text-[#5300b7]">Importing CSV and validating each row…</p>}
+        {importError && <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-[12px] text-red-700">{importError}</p>}
+        {importResult && <div role="status" className="mt-3 rounded-lg bg-[#f7f1ff] p-3 text-[12px] text-[#3d176e]">
+          <p className="font-semibold">{importResult.createdCount} business{importResult.createdCount === 1 ? '' : 'es'} imported as drafts; {importResult.failed.length} row{importResult.failed.length === 1 ? '' : 's'} failed.</p>
+          {importResult.failed.length > 0 && <ul className="mt-2 space-y-1">
+            {importResult.failed.slice(0, 20).map(failure => <li key={`${failure.row}-${failure.businessName}`}>Row {failure.row}{failure.businessName ? ` (${failure.businessName})` : ''}: {failure.message}</li>)}
+            {importResult.failed.length > 20 && <li>And {importResult.failed.length - 20} more failed rows.</li>}
+          </ul>}
+        </div>}
+      </section>
 
       {/* Category filters */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -129,6 +182,7 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
                 <p className="text-[11px] text-[#7b7486]">
                   {biz.category} • {biz.location}
                 </p>
+                {biz.googlePlaceVerificationStatus === 'mismatch' && <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[11px] text-amber-900"><p className="font-semibold">Google Place ID mismatch. It is not proof of ownership.</p><button onClick={() => onClearGooglePlaceMismatch(biz.id)} className="mt-1 font-semibold underline">Clear mismatched Place ID</button></div>}
               </div>
 
               <button
@@ -146,6 +200,8 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
                 <div className="flex items-center gap-2">
                 <button
                   onClick={() => onApproveBusiness(biz.id)}
+                  disabled={biz.googlePlaceVerificationStatus === 'mismatch'}
+                  title={biz.googlePlaceVerificationStatus === 'mismatch' ? 'A mismatched Google Place ID must be corrected before approval.' : undefined}
                   className="flex-1 py-1.5 bg-[#6d28d9] hover:bg-[#5300b7] text-white text-[12px] font-bold rounded-lg cursor-pointer"
                 >
                   Approve

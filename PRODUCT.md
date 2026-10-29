@@ -26,7 +26,7 @@ The current product supports public directory browsing and business profile page
 
 - The existing web application is built with Next.js and React. It connects to a separate server application for directory and dashboard data.
 - Current code includes directory search and category/city routes, business detail pages, owner dashboards, and admin listing review.
-- Google Business Profile review importing is a planned capability, not yet confirmed as implemented. Google API access and OAuth setup remain prerequisites.
+- Business owners can optionally provide a Google Place ID. The server checks its business-name and address match and can display Google ratings and a limited set of reviews on the public profile using Places API (New). Google API billing and access configuration remain prerequisites.
 - A distinctive positioning, supported languages, accessibility standard, and deployment constraints have not been specified.
 
 ## Brand Commitments

@@ -18,6 +18,7 @@ export interface BusinessListing {
   enquiries?: number;
   description?: string;
   verified?: boolean;
+  googlePlaceVerificationStatus?: 'unverified' | 'verified' | 'mismatch';
   alternatePhone?: string;
   whatsapp?: string;
   email?: string;

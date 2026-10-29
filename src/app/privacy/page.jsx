@@ -20,14 +20,14 @@ const sections = [
     title: "How we use information",
     paragraphs: [
       "We use information to provide business search and discovery, create and manage listings, operate accounts and dashboards, respond to requests, improve reliability, and protect the service from abuse.",
-      "Where you connect a Google Business Profile, we use the authorization and profile information needed to provide the connected features you request, such as selecting a business location or displaying available reviews. You can disconnect that integration through its available settings.",
+      "If a business owner provides a Google Place ID, we use it to request available rating and review information from Google Places when a visitor opens that business profile. We store the Place ID and its name-and-address match state, but Google review text is not stored in the business database.",
     ],
   },
   {
     title: "When information is shared",
     paragraphs: [
       "Business information that you publish is shared publicly so people can discover and contact the business. Do not include personal or confidential information in a public listing unless you intend it to be public.",
-      "We use service providers to host and operate the platform, store application data, process images, and support location or Google Business Profile features. These providers process information as needed to provide their services and may have their own privacy practices.",
+      "We use service providers to host and operate the platform, store application data, process images, and support location or Google Places features. Google may process Place IDs and the requested listing data under its own terms and privacy practices.",
       "We may also disclose information when required by law, to protect users and the service, or as part of a business transfer. We do not sell personal information.",
     ],
   },
@@ -36,6 +36,7 @@ const sections = [
     paragraphs: [
       "Account session tokens and saved location preferences may be stored in your browser. You can sign out to clear the app's local session and clear browser storage to remove locally saved preferences.",
       "We use reasonable safeguards designed to protect information. No website or storage system can be guaranteed completely secure.",
+      "Google rating and review content is cached temporarily in server memory to reduce repeat requests and is not saved in Lokal Lens business records.",
       "We retain information for as long as needed to provide the service, meet legal obligations, resolve disputes, and enforce our agreements. Public listing information may remain visible until it is changed, unpublished, or removed.",
     ],
   },
