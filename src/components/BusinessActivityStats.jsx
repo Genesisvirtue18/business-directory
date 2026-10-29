@@ -35,14 +35,14 @@ export default function BusinessActivityStats({ businessId, initialViews = 0, in
     { value: leads, label: "Customer leads", detail: "Contact form inquiries", Icon: MessageSquareText },
   ];
 
-  return <section aria-label="Business activity" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+  return <section aria-label="Business activity" className="rounded-none border-0 bg-transparent p-0 shadow-none">
     <div className="grid gap-2.5 sm:grid-cols-2">
-      {stats.map(({ value, label, detail, Icon }) => <div key={label} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><Icon className="h-5 w-5" /></span>
+      {stats.map(({ value, label, detail, Icon }) => <div key={label} className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-2 py-2.5 xl:gap-3 xl:px-3.5 xl:py-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 xl:h-10 xl:w-10"><Icon className="h-4 w-4 xl:h-5 xl:w-5" /></span>
         <div className="min-w-0">
-          <p className="text-xl font-semibold leading-6 tabular-nums text-slate-950">{Number(value).toLocaleString()}</p>
-          <p className="mt-0.5 text-xs font-semibold text-slate-800">{label}</p>
-          <p className="text-[11px] leading-4 text-slate-500">{detail}</p>
+          <p className="text-lg font-semibold leading-5 tabular-nums text-slate-950 xl:text-xl xl:leading-6">{Number(value).toLocaleString()}</p>
+          <p className="mt-0.5 text-[10px] font-semibold text-slate-800 xl:text-xs">{label}</p>
+          <p className="text-[9px] leading-3.5 text-slate-500 xl:text-[11px] xl:leading-4">{detail}</p>
         </div>
       </div>)}
     </div>

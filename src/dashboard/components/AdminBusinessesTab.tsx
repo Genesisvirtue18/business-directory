@@ -93,7 +93,7 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
           <div>
             <h3 className="text-[15px] font-bold text-[#1b1b1e]">Bulk upload businesses</h3>
             <p className="mt-1 max-w-3xl text-[12px] text-[#7b7486]">
-              Import up to 500 draft listings at a time. Required fields: business name, owner email, category, description, services, phone, email, address line 1, city, and state. Use pipe separators (|) for lists and download the sample for all supported columns.
+              Import up to 500 listings at a time. Valid rows are submitted for admin review. Required fields: business name, owner email, category, description, services, phone, email, address line 1, city, and state. Use pipe separators (|) for lists and download the sample for all supported columns.
             </p>
           </div>
           <a href="/business-upload-template.csv" download className="rounded-lg border border-[#5300b7] px-3 py-2 text-[12px] font-semibold text-[#5300b7] hover:bg-[#f7f1ff]">
@@ -107,7 +107,7 @@ export const AdminBusinessesTab: React.FC<AdminBusinessesTabProps> = ({
         {importing && <p role="status" className="mt-3 text-[12px] text-[#5300b7]">Importing CSV and validating each row…</p>}
         {importError && <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-[12px] text-red-700">{importError}</p>}
         {importResult && <div role="status" className="mt-3 rounded-lg bg-[#f7f1ff] p-3 text-[12px] text-[#3d176e]">
-          <p className="font-semibold">{importResult.createdCount} business{importResult.createdCount === 1 ? '' : 'es'} imported as drafts; {importResult.failed.length} row{importResult.failed.length === 1 ? '' : 's'} failed.</p>
+          <p className="font-semibold">{importResult.createdCount} business{importResult.createdCount === 1 ? '' : 'es'} submitted for admin review; {importResult.failed.length} row{importResult.failed.length === 1 ? '' : 's'} failed.</p>
           {importResult.failed.length > 0 && <ul className="mt-2 space-y-1">
             {importResult.failed.slice(0, 20).map(failure => <li key={`${failure.row}-${failure.businessName}`}>Row {failure.row}{failure.businessName ? ` (${failure.businessName})` : ''}: {failure.message}</li>)}
             {importResult.failed.length > 20 && <li>And {importResult.failed.length - 20} more failed rows.</li>}

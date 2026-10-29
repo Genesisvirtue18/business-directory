@@ -276,8 +276,10 @@ export default function DashboardApp({ role }: DashboardAppProps) {
                 onClearGooglePlaceMismatch={handleClearGooglePlaceMismatch}
                 onBackToOverview={() => setAdminTab('overview')}
                 onBusinessesImported={(businesses) => {
-                  setActiveBusinesses((items) => [...businesses, ...items.filter(item => !businesses.some(imported => imported.id === item.id))]);
-                  if (businesses.length) showToast(`${businesses.length} business${businesses.length === 1 ? '' : 'es'} imported as drafts.`);
+                  const importedIds = new Set(businesses.map(item => item.id));
+                  setPendingBusinesses((items) => [...businesses.filter(item => item.status === 'Pending'), ...items.filter(item => !importedIds.has(item.id))]);
+                  setActiveBusinesses((items) => [...businesses.filter(item => item.status !== 'Pending'), ...items.filter(item => !importedIds.has(item.id))]);
+                  if (businesses.length) showToast(`${businesses.length} business${businesses.length === 1 ? '' : 'es'} submitted for admin review.`);
                 }}
               />
             ) : adminTab === 'leads' ? (
